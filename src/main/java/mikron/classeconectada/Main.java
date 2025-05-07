@@ -3,6 +3,7 @@ package mikron.classeconectada;
 import mikron.classeconectada.System.Turma;
 import mikron.classeconectada.User.Aluno;
 import mikron.classeconectada.User.Diretor;
+import mikron.classeconectada.db.DBUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,6 +11,10 @@ import java.util.List;
 public class Main {
     public static void main(String[] args) {
 
+
+        DBUtil dbUtil = new DBUtil();
+
+        dbUtil.conexaoGeral();
 
         List<Turma> turmas = new ArrayList<Turma>();
 

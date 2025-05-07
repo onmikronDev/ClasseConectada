@@ -4,6 +4,10 @@
  */
 package mikron.classeconectada.Telas;
 
+import mikron.classeconectada.System.Util;
+
+import javax.swing.*;
+
 /**
  *
  * @author mikron
@@ -134,6 +138,8 @@ public class TelaRelatorio extends javax.swing.JFrame {
 
     private void jButton13ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton13ActionPerformed
         // TODO add your handling code here:
+        JOptionPane.showMessageDialog(null, "Relatório enviado com sucesso!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
+        Util.tela(new TelaInicial(),this);
     }//GEN-LAST:event_jButton13ActionPerformed
 
     /**

@@ -4,6 +4,10 @@
  */
 package mikron.classeconectada.Telas;
 
+import mikron.classeconectada.System.Util;
+
+import javax.swing.*;
+
 /**
  *
  * @author mikron
@@ -188,22 +192,32 @@ public class TelaTurmas extends javax.swing.JFrame {
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
         // TODO add your handling code here:
+        // aplicar notas
+        Util.tela(new TelaAplicarNotas(),this,false);
     }//GEN-LAST:event_jButton3ActionPerformed
 
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
         // TODO add your handling code here:
+        // status presença
+        JOptionPane.showMessageDialog(null,"Progresso...");
     }//GEN-LAST:event_jButton4ActionPerformed
 
     private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
         // TODO add your handling code here:
+        // observações
+        Util.tela(new TelaObservacao(),this,false);
     }//GEN-LAST:event_jButton5ActionPerformed
 
     private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
         // TODO add your handling code here:
+        // voltar
+        Util.tela(new TelaInicial(),this);
     }//GEN-LAST:event_jButton6ActionPerformed
 
     private void jButton7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton7ActionPerformed
         // TODO add your handling code here:
+        // historico
+        Util.tela(new TelaHistorico(),this);
     }//GEN-LAST:event_jButton7ActionPerformed
 
     /**

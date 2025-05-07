@@ -4,6 +4,10 @@
  */
 package mikron.classeconectada.Telas;
 
+import mikron.classeconectada.System.Util;
+
+import javax.swing.*;
+
 /**
  *
  * @author mikron
@@ -180,22 +184,32 @@ public class TelaHistorico extends javax.swing.JFrame {
 
     private void jButton8ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton8ActionPerformed
         // TODO add your handling code here:
+        // editar
+        JOptionPane.showMessageDialog(null,"Progresso...");
     }//GEN-LAST:event_jButton8ActionPerformed
 
     private void jButton9ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton9ActionPerformed
         // TODO add your handling code here:
+        // observações
+        Util.tela(new TelaListaDeObservacoes(), this);
     }//GEN-LAST:event_jButton9ActionPerformed
 
     private void jButton10ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton10ActionPerformed
         // TODO add your handling code here:
+        // voltar
+        Util.tela(new TelaTurmas(), this);
     }//GEN-LAST:event_jButton10ActionPerformed
 
     private void jButton11ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton11ActionPerformed
         // TODO add your handling code here:
+        // visualizar
+        JOptionPane.showMessageDialog(null,"Progresso...");
     }//GEN-LAST:event_jButton11ActionPerformed
 
     private void jButton12ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton12ActionPerformed
         // TODO add your handling code here:
+        // deletar
+        JOptionPane.showMessageDialog(null,"Progresso...");
     }//GEN-LAST:event_jButton12ActionPerformed
 
     /**
