@@ -5,6 +5,9 @@
 package mikron.classeconectada.Telas;
 
 import mikron.classeconectada.System.Util;
+import mikron.classeconectada.db.DBUtil;
+
+import javax.swing.*;
 
 /**
  *
@@ -15,7 +18,15 @@ public class TelaObservacao extends javax.swing.JFrame {
     /**
      * Creates new form TelaObservacao
      */
-    public TelaObservacao() {
+    DBUtil db;
+
+    private String aluno;
+    private String turma;
+    public TelaObservacao(String aluno) {
+        db = new DBUtil();
+        this.aluno = aluno;
+        turma = db.getTurmaNameByAlunoName(aluno);
+        System.out.println(turma);
         initComponents();
     }
 
@@ -82,10 +93,10 @@ public class TelaObservacao extends javax.swing.JFrame {
                                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 394, javax.swing.GroupLayout.PREFERRED_SIZE)))
                         .addContainerGap(42, Short.MAX_VALUE))
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 78, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 158, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 78, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(102, 102, 102))))
+                        .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 154, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(26, 26, 26))))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -118,11 +129,29 @@ public class TelaObservacao extends javax.swing.JFrame {
                 .addGap(0, 0, Short.MAX_VALUE))
         );
 
+        jLabel1.setText("Aluno: " + aluno);
+        jLabel2.setText("Turma: " + turma);
+
+
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton13ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton13ActionPerformed
         // TODO add your handling code here:
+        String observacao = jTextArea1.getText();
+
+        if (observacao.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Preencha o campo de observação!", "Erro", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        try {
+            String query = "INSERT INTO observacao (aluno_id, data, conteudo) VALUES (" + db.getAlunoByName(aluno) + ", '" + new java.sql.Date(System.currentTimeMillis()) + "', '" + observacao + "')";
+            db.sendQuery(query);
+            JOptionPane.showMessageDialog(this, "Observação enviada com sucesso!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Erro ao enviar observação, um erro inesperado aconteceu", "Erro", JOptionPane.ERROR_MESSAGE);
+        }
         this.dispose();
     }//GEN-LAST:event_jButton13ActionPerformed
 
@@ -156,7 +185,7 @@ public class TelaObservacao extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new TelaObservacao().setVisible(true);
+                new TelaObservacao("").setVisible(true);
             }
         });
     }

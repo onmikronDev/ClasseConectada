@@ -117,6 +117,34 @@ public class DBUtil {
         return turmas;
     }
 
+    public List<String> listarDisciplina() {
+        List<String> disciplina = new ArrayList<>();
+        String query = "SELECT * FROM disciplina";
+        try (PreparedStatement ps = conn.prepareStatement(query)) {
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                int id = rs.getInt("id");
+                String nome = rs.getString("nome");
+                disciplina.add(nome);
+            }
+        } catch (SQLException ex) {
+            System.out.println("Erro ao executar a query " + ex.getMessage());
+        }
+        return disciplina;
+    }
+
+    public void listarDisciplinaNaTabela(JTable tabelas) {
+        List<String> listakekw = listarDisciplina();
+        DefaultTableModel tabelaLista = (DefaultTableModel) tabelas.getModel();
+        tabelas.setRowSorter(new TableRowSorter(tabelaLista));
+        for(String disciplina2 : listakekw){
+            Object[] obj = new Object[]{
+                    disciplina2
+            };
+            tabelaLista.addRow(obj);
+        }
+    }
+
     public List<Aluno> listarAlunosSQL(int turmaID) {
         List<Aluno> alunos = new ArrayList<>();
         String query = "SELECT * FROM aluno WHERE turma_id = ?";
@@ -159,6 +187,34 @@ public class DBUtil {
             System.out.println("Erro ao executar a query " + ex.getMessage());
         }
         return -1;
+    }
+
+    public String getTurmaNameByID(int id){
+        String query = "SELECT nome FROM turmas WHERE id = ?";
+        try (PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setInt(1, id);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getString("nome");
+            }
+        } catch (SQLException ex) {
+            System.out.println("Erro ao executar a query " + ex.getMessage());
+        }
+        return null;
+    }
+
+    public String getTurmaNameByAlunoName(String alunoName){
+        String query = "SELECT turmas.nome FROM turmas INNER JOIN aluno ON turmas.id = aluno.turma_id INNER JOIN user ON aluno.id = user.id WHERE user.nome = ?";
+        try (PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setString(1, alunoName);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getString("nome");
+            }
+        } catch (SQLException ex) {
+            System.out.println("Erro ao executar a query " + ex.getMessage());
+        }
+        return null;
     }
 
 
@@ -222,6 +278,26 @@ public class DBUtil {
             ps.executeUpdate();
         } catch (SQLException ex) {
             System.out.println("Erro ao aplicar a nota " + ex.getMessage());
+        }
+    }
+
+    public void listarNotasNaTabela(JTable jTable1, int alunoID, String disciplina) {
+        String query = "SELECT * FROM nota WHERE aluno_id = ? AND disciplina = ?";
+        try (PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setInt(1, alunoID);
+            ps.setString(2, disciplina);
+            ResultSet rs = ps.executeQuery();
+            DefaultTableModel tabelaLista = (DefaultTableModel) jTable1.getModel();
+            jTable1.setRowSorter(new TableRowSorter(tabelaLista));
+            while (rs.next()) {
+                Object[] obj = new Object[]{
+                        rs.getString("nota"),
+                        rs.getString("data"),
+                };
+                tabelaLista.addRow(obj);
+            }
+        } catch (SQLException ex) {
+            System.out.println("Erro ao listar notas " + ex.getMessage());
         }
     }
 }

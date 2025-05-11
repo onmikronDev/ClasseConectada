@@ -24,9 +24,22 @@ CREATE TABLE aluno (
 
 CREATE table professor (
                            id INT PRIMARY KEY AUTO_INCREMENT,
-                           formação VARCHAR(255) NOT NULL,
+                           disciplina VARCHAR(255) NOT NULL,
                            FOREIGN KEY (id) REFERENCES user(id)
 
+);
+
+CREATE TABLE disciplina (
+                            id INT PRIMARY KEY AUTO_INCREMENT,
+                            nome VARCHAR(255) NOT NULL
+);
+
+CREATE TABLE professor_disciplina (
+                                      professor_id INT NOT NULL,
+                                      disciplina_id INT NOT NULL,
+                                      PRIMARY KEY (professor_id, disciplina_id),
+                                      FOREIGN KEY (professor_id) REFERENCES professor(id),
+                                      FOREIGN KEY (disciplina_id) REFERENCES disciplina(id)
 );
 
 create table turmas (
@@ -54,6 +67,16 @@ create table calendario (
                             foreign key (id_professor) references professor(id)
 );
 
+create table observacao (
+                            id INT PRIMARY KEY AUTO_INCREMENT,
+                            aluno_id INT NOT NULL,
+                            data DATE NOT NULL,
+                            conteudo TEXT NOT NULL,
+                            FOREIGN KEY (aluno_id) REFERENCES aluno(id)
+);
+
+select * from observacao;
+
 create table chamada_aluno (
                                id INT PRIMARY KEY AUTO_INCREMENT,
                                chamada_id INT NOT NULL,
@@ -71,7 +94,6 @@ create table professor_turmas (
 );
 
 
-
 create table relatorio (
                            id INT PRIMARY KEY AUTO_INCREMENT,
                            aluno_id INT NOT NULL,
@@ -83,11 +105,34 @@ create table relatorio (
 create table nota (
                       id INT PRIMARY KEY AUTO_INCREMENT,
                       aluno_id INT NOT NULL,
+                      disciplina VARCHAR(255) NOT NULL,
                       nota DECIMAL(5,2) NOT NULL,
                       data DATE NOT NULL,
                       descricao varchar(255) NOT NULL,
                       FOREIGN KEY (aluno_id) REFERENCES aluno(id)
 );
+
+insert into nota (aluno_id, disciplina, nota, data, descricao) values (3, 'Matemática', 8.5, '2023-10-01', 'Prova de Matemática');
+insert into nota (aluno_id, disciplina, nota, data, descricao) values (3, 'Português', 9.0, '2023-10-02', 'Prova de Português');
+insert into nota (aluno_id, disciplina, nota, data, descricao) values (3, 'História', 7.5, '2023-10-03', 'Prova de História');
+insert into nota (aluno_id, disciplina, nota, data, descricao) values (3, 'Geografia', 8.0, '2023-10-04', 'Prova de Geografia');
+insert into nota (aluno_id, disciplina, nota, data, descricao) values (3, 'Matemática', 8.5, '2023-10-01', 'Prova de Matemática');
+
+# TABELA EXPERIMENTAL TESTAR AINDA
+# create table nota (
+#                       id INT PRIMARY KEY AUTO_INCREMENT,
+#                       aluno_id INT NOT NULL,
+#                       disciplina VARCHAR(255) NOT NULL, # pode ser removida
+#                       disciplina_id INT NOT NULL,
+#                       nota DECIMAL(5,2) NOT NULL,
+#                       data DATE NOT NULL,
+#                       descricao varchar(255) NOT NULL,
+#                       foreign key (disciplina_id) references disciplina(id),
+#                       FOREIGN KEY (aluno_id) REFERENCES aluno(id)
+# );
+
+select * from nota;
+drop table nota;
 
 insert into user (nome, cpf, senha, email, telefone, endereco, tipo) values ('Diretor', '12345678900', 'senha123', '@gay', '123456789', 'Rua A, 123', 'diretor');
 insert into user (nome, cpf, senha, email, telefone, endereco, tipo) values ('Supervisor', '12345678903', 'senha123', '@bixa', '123456789', 'Rua A, 123', 'supervisor');
@@ -96,9 +141,25 @@ insert into professor (id, formação) values (2, 'Matemática');
 insert into user (nome, cpf, senha, email, telefone, endereco, tipo) values ('Aluno', '12345678902', 'senha123', '@homosexual', '123456789', 'Rua A, 123', 'aluno');
 
 insert turmas (nome, ano) values ('Turma A', 2023);
+insert turmas (nome, ano) values ('Turma B', 2023);
+
+insert into disciplina (nome) values ('Matemática');
+insert into disciplina (nome) values ('Português');
+insert into disciplina (nome) values ('História');
+insert into disciplina (nome) values ('Geografia');
+insert into professor_disciplina (professor_id, disciplina_id) values (2, 1);
+
+select * from disciplina;
+
 insert into professor_turmas(professor_id, turma_id) values (2, 1);
 insert into aluno (id, pai, mae, turma_id) values (3, 'Pai', 'Mãe', 1);
 delete from aluno where id = 1;
+
+
+
+SELECT * FROM user WHERE nome = 'Aluno';
+
+
 
 SELECT aluno.id, aluno.pai, aluno.mae, turmas.nome AS turma_nome
 FROM aluno

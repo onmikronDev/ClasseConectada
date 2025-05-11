@@ -5,8 +5,10 @@
 package mikron.classeconectada.Telas;
 
 import mikron.classeconectada.System.Util;
+import mikron.classeconectada.db.DBUtil;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
 
 /**
  *
@@ -17,8 +19,35 @@ public class TelaHistorico extends javax.swing.JFrame {
     /**
      * Creates new form TelaHistorico
      */
-    public TelaHistorico() {
+
+    DBUtil db;
+    private String aluno;
+    private int alunoID;
+    public TelaHistorico(String aluno) {
         initComponents();
+        db = new DBUtil();
+        this.aluno = aluno;
+        System.out.println("historico: " + aluno);
+        alunoID = db.getAlunoByName(aluno);
+        // TODO add your handling code here:
+
+        // Listar notas
+        jTable2.getSelectionModel().addListSelectionListener(event -> {
+            if (!event.getValueIsAdjusting()) {
+                int selectedRow = jTable2.getSelectedRow();
+                if (selectedRow != -1) {
+                    System.out.println("Selected row: " + selectedRow);
+                    System.out.println("Value: " + jTable2.getValueAt(selectedRow, 0));
+
+                    DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
+                    model.setRowCount(0);
+                    db.listarNotasNaTabela(jTable1, alunoID, (String) jTable2.getValueAt(selectedRow, 0));
+                }
+            }
+        });
+
+        db.listarDisciplinaNaTabela(jTable2);
+
     }
 
     /**
@@ -51,11 +80,11 @@ public class TelaHistorico extends javax.swing.JFrame {
         jTable1.setForeground(new java.awt.Color(255, 255, 255));
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {"Testing"},
-                {"Testing"}
+                {"Testing", null},
+                {"Testing", null}
             },
             new String [] {
-                "Lista de Notas"
+                "Nota", "Data"
             }
         ));
         jTable1.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
@@ -70,8 +99,7 @@ public class TelaHistorico extends javax.swing.JFrame {
         jTable2.setForeground(new java.awt.Color(255, 255, 255));
         jTable2.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {"Testing"},
-                {"Testing"}
+
             },
             new String [] {
                 "Lista de Materias"
@@ -134,8 +162,8 @@ public class TelaHistorico extends javax.swing.JFrame {
                 .addGap(30, 30, 30)
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 144, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 144, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 54, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 270, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 47, Short.MAX_VALUE)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jButton8, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jButton9, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -191,7 +219,7 @@ public class TelaHistorico extends javax.swing.JFrame {
     private void jButton9ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton9ActionPerformed
         // TODO add your handling code here:
         // observações
-        Util.tela(new TelaListaDeObservacoes(), this);
+        Util.tela(new TelaListaDeObservacoes(aluno), this);
     }//GEN-LAST:event_jButton9ActionPerformed
 
     private void jButton10ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton10ActionPerformed
@@ -242,7 +270,7 @@ public class TelaHistorico extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new TelaHistorico().setVisible(true);
+                new TelaHistorico("").setVisible(true);
             }
         });
     }

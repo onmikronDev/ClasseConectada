@@ -24,6 +24,7 @@ public class TelaTurmas extends javax.swing.JFrame {
 
     DBUtil db;
     String status = "Presente";
+    private String alunoSelecionado;
     public TelaTurmas() {
         initComponents();
         DBUtil db = new DBUtil();
@@ -271,7 +272,7 @@ public class TelaTurmas extends javax.swing.JFrame {
     private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
         // TODO add your handling code here:
         // observações
-        Util.tela(new TelaObservacao(),this,false);
+        Util.tela(new TelaObservacao((String) jTable1.getValueAt(jTable1.getSelectedRow(),0)),this,false);
     }//GEN-LAST:event_jButton5ActionPerformed
 
     private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
@@ -283,7 +284,13 @@ public class TelaTurmas extends javax.swing.JFrame {
     private void jButton7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton7ActionPerformed
         // TODO add your handling code here:
         // historico
-        Util.tela(new TelaHistorico(),this);
+
+        if (jTable1.getSelectedRow() == -1) {
+            JOptionPane.showMessageDialog(this, "Selecione um aluno para ver o histórico.");
+            return;
+        }
+
+        Util.tela(new TelaHistorico((String) jTable1.getValueAt(jTable1.getSelectedRow(),0)),this);
     }//GEN-LAST:event_jButton7ActionPerformed
 
     /**

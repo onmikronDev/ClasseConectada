@@ -5,6 +5,7 @@
 package mikron.classeconectada.Telas;
 
 import mikron.classeconectada.System.Util;
+import mikron.classeconectada.db.DBUtil;
 
 import javax.swing.*;
 
@@ -17,7 +18,11 @@ public class TelaListaDeObservacoes extends javax.swing.JFrame {
     /**
      * Creates new form TelaListaDeObservações
      */
-    public TelaListaDeObservacoes() {
+    DBUtil db;
+    private String aluno;
+    public TelaListaDeObservacoes(String aluno) {
+        db = new DBUtil();
+        this.aluno = aluno;
         initComponents();
     }
 
@@ -168,7 +173,7 @@ public class TelaListaDeObservacoes extends javax.swing.JFrame {
     private void jButton13ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton13ActionPerformed
         // TODO add your handling code here:
         // voltar
-       Util.tela(new TelaHistorico(),this);
+       Util.tela(new TelaHistorico(aluno),this);
 
     }//GEN-LAST:event_jButton13ActionPerformed
 
@@ -222,7 +227,7 @@ public class TelaListaDeObservacoes extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new TelaListaDeObservacoes().setVisible(true);
+                new TelaListaDeObservacoes("").setVisible(true);
             }
         });
     }
