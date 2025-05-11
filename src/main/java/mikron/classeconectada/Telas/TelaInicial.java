@@ -15,8 +15,11 @@ public class TelaInicial extends javax.swing.JFrame {
     /**
      * Creates new form TelaInicial
      */
-    public TelaInicial() {
+    private String tipoPerm;
+    public TelaInicial(String tipoPerm) {
         initComponents();
+        this.tipoPerm = tipoPerm;
+        System.out.println(tipoPerm);
     }
 
     /**
@@ -156,7 +159,7 @@ public class TelaInicial extends javax.swing.JFrame {
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         // TODO add your handling code here:
         //4
-        Util.tela(new TelaTipoUser("user"),this);
+        Util.tela(new TelaTipoUser(tipoPerm),this);
     }//GEN-LAST:event_jButton2ActionPerformed
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
@@ -202,7 +205,7 @@ public class TelaInicial extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new TelaInicial().setVisible(true);
+                new TelaInicial("diretor").setVisible(true);
             }
         });
     }

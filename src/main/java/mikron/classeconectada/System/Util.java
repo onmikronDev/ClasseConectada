@@ -4,6 +4,7 @@ import javax.swing.*;
 
 public class Util {
 
+    public static String userPermission;
 
     public static void tela(JFrame frameNew, JFrame jframe, boolean dispose) {
         frameNew.setVisible(true);

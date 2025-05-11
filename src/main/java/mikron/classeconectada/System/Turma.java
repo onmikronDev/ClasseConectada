@@ -11,6 +11,7 @@ import java.util.List;
 public class Turma {
 
 	private int id;
+	private int ano;
 
 	private String sala;
 
@@ -21,10 +22,11 @@ public class Turma {
 	private Chamada chamada;
 
 
-	public Turma(int id, String sala) {
+	public Turma(int id, String sala, int ano) {
 		alunos = new ArrayList<Aluno>();
 		this.id = id;
 		this.sala = sala;
+		this.ano = ano;
 	}
 
 	public void addAluno(Aluno aluno) {
@@ -71,6 +73,10 @@ public class Turma {
 
 	public Chamada getChamada() {
 		return chamada;
+	}
+
+	public int getAno() {
+		return ano;
 	}
 
 	public void addProfessor(Professor professor) {

@@ -4,6 +4,10 @@
  */
 package mikron.classeconectada.Telas;
 
+import mikron.classeconectada.db.DBUtil;
+
+import javax.swing.*;
+
 /**
  *
  * @author mikron
@@ -13,8 +17,16 @@ public class TelaAplicarNotas extends javax.swing.JFrame {
     /**
      * Creates new form TelaAplicarNotas
      */
-    public TelaAplicarNotas() {
+
+    DBUtil db;
+    int idAluno;
+    String aluno;
+    public TelaAplicarNotas(String aluno) {
+        this.aluno = aluno;
         initComponents();
+        db = new DBUtil();
+        System.out.println("Aluno: " + this.aluno);
+        idAluno = db.getAlunoByName(aluno);
     }
 
     /**
@@ -45,6 +57,8 @@ public class TelaAplicarNotas extends javax.swing.JFrame {
         jLabel1.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         jLabel1.setForeground(new java.awt.Color(255, 255, 255));
         jLabel1.setText("Aluno:");
+
+
 
         jLabel2.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         jLabel2.setForeground(new java.awt.Color(255, 255, 255));
@@ -149,12 +163,41 @@ public class TelaAplicarNotas extends javax.swing.JFrame {
                 .addGap(0, 0, Short.MAX_VALUE))
         );
 
+        jLabel1.setText("Aluno:" + aluno);
+
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton7ActionPerformed
         // TODO add your handling code here:
-        this.dispose();
+
+        if(jTextField1.getText().isEmpty() || jTextField2.getText().isEmpty() || jTextArea1.getText().isEmpty() ){
+            JOptionPane.showMessageDialog(this, "Preencha todos os campos!", "Erro", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        if(!jTextField2.getText().matches("[0-9]+")) {
+            JOptionPane.showMessageDialog(this, "Nota deve ser um número!", "Erro", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        if(Integer.parseInt(jTextField2.getText()) < 0 || Integer.parseInt(jTextField2.getText()) > 10) {
+            JOptionPane.showMessageDialog(this, "Nota deve ser entre 0 e 10!", "Erro", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        String materia = jTextField1.getText();
+        String nota = jTextField2.getText();
+        String descricao = jTextArea1.getText();
+
+        try{
+            db.aplicarNota(idAluno, materia, nota, descricao);
+            JOptionPane.showMessageDialog(this, "Nota aplicada com sucesso!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
+            this.dispose();
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Erro ao aplicar nota!", "Erro", JOptionPane.ERROR_MESSAGE);
+            throw new RuntimeException(e);
+        }
+
     }//GEN-LAST:event_jButton7ActionPerformed
 
     private void jTextField2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField2ActionPerformed
@@ -191,7 +234,7 @@ public class TelaAplicarNotas extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new TelaAplicarNotas().setVisible(true);
+                new TelaAplicarNotas("").setVisible(true);
             }
         });
     }

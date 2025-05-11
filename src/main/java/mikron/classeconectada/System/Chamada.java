@@ -17,8 +17,8 @@ public class Chamada extends Turma {
 
 	private Date data;
 
-	public Chamada(int id, String sala) {
-		super(id, sala);
+	public Chamada(int id, String sala,int ano) {
+		super(id, sala, ano);
 	}
 
 	public void RegistrarChamada() {

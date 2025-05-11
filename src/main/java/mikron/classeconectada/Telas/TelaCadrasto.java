@@ -298,7 +298,7 @@ public class TelaCadrasto extends javax.swing.JFrame {
 
     private void jButton13ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton13ActionPerformed
         // TODO add your handling code here:
-        Util.tela(new TelaInicial(),this);
+        Util.tela(new TelaInicial(Util.userPermission),this);
     }//GEN-LAST:event_jButton13ActionPerformed
 
     /**

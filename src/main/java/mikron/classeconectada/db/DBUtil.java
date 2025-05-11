@@ -1,9 +1,15 @@
 package mikron.classeconectada.db;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Statement;
+import com.mysql.cj.protocol.Resultset;
+import mikron.classeconectada.System.Turma;
+import mikron.classeconectada.User.Aluno;
+
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableRowSorter;
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class DBUtil {
 
@@ -17,6 +23,9 @@ public class DBUtil {
     private String password = "kekw"; //
 
 
+    public DBUtil() {
+        conexaoGeral();
+    }
 
     public void sendQuery(String query){
         try {
@@ -69,6 +78,150 @@ public class DBUtil {
         }
     }
 
+    public int getAlunoByName(String name){
+        String query = "SELECT * FROM user WHERE nome = ?";
+        try (PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setString(1, name);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                int id = rs.getInt("id");
+                String cpf = rs.getString("cpf");
+                String email = rs.getString("email");
+                Aluno aluno = new Aluno(id, name, cpf, email);
+                return aluno.getId();
+            } else {
+                System.out.println("Aluno não encontrado");
+                return -1;
+            }
+        } catch (SQLException ex) {
+            System.out.println("Erro ao executar a query " + ex.getMessage());
+        }
+        return -1;
+    }
+
+    public List<Turma> listarTurmasSQL() {
+        List<Turma> turmas = new ArrayList<>();
+        String query = "SELECT * FROM turmas";
+        try (PreparedStatement ps = conn.prepareStatement(query)) {
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                int id = rs.getInt("id");
+                String sala = rs.getString("nome");
+                int ano = rs.getInt("ano");
+                Turma turma = new Turma(id, sala, ano);
+                turmas.add(turma);
+            }
+        } catch (SQLException ex) {
+            System.out.println("Erro ao executar a query " + ex.getMessage());
+        }
+        return turmas;
+    }
+
+    public List<Aluno> listarAlunosSQL(int turmaID) {
+        List<Aluno> alunos = new ArrayList<>();
+        String query = "SELECT * FROM aluno WHERE turma_id = ?";
+        try (PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setInt(1, turmaID);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                int id = rs.getInt("id");
+
+                String query2 = "SELECT * FROM user WHERE id = ?";
+                try (PreparedStatement ps2 = conn.prepareStatement(query2)) {
+                    ps2.setInt(1, id);
+                    ResultSet rs2 = ps2.executeQuery();
+                    if (rs2.next()) {
+                        String nome = rs2.getString("nome");
+                        String cpf = rs2.getString("cpf");
+                        String email = rs2.getString("email");
+                        Aluno aluno = new Aluno(id, nome, cpf, email);
+                        alunos.add(aluno);
+                    }
+                } catch (SQLException ex) {
+                    System.out.println("Erro ao executar a query " + ex.getMessage());
+                }
+            }
+        } catch (SQLException ex) {
+            System.out.println("Erro ao executar a query " + ex.getMessage());
+        }
+        return alunos;
+    }
+
+    public int getTurmaIDByName(String name){
+        String query = "SELECT id FROM turmas WHERE nome = ?";
+        try (PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setString(1, name);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("id");
+            }
+        } catch (SQLException ex) {
+            System.out.println("Erro ao executar a query " + ex.getMessage());
+        }
+        return -1;
+    }
 
 
+    public void listasTurma(JTable tabelas) {
+        List<Turma> listakekw = listarTurmasSQL();
+        DefaultTableModel tabelaLista = (DefaultTableModel) tabelas.getModel();
+        tabelas.setRowSorter(new TableRowSorter(tabelaLista));
+        for(Turma turma : listakekw){
+            Object[] obj = new Object[]{
+                    turma.getSala(),
+            };
+            tabelaLista.addRow(obj);
+        }
+    }
+
+    public void listarAlunosNaTabela(JTable tabelas,String turma) {
+        if(turma == null){
+            System.out.println("Turma não encontrada");
+            return;
+        }
+
+        List<Aluno> listakekw = listarAlunosSQL(getTurmaIDByName(turma));
+        DefaultTableModel tabelaLista = (DefaultTableModel) tabelas.getModel();
+        tabelas.setRowSorter(new TableRowSorter(tabelaLista));
+        for(Aluno aluno : listakekw){
+            Object[] obj = new Object[]{
+                    aluno.getNome(),
+            };
+            tabelaLista.addRow(obj);
+        }
+    }
+
+    public String login(String login, String senha) {
+        String query = "SELECT * FROM user WHERE email = ? AND senha = ?";
+        try (PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setString(1, login);
+            ps.setString(2, senha);
+            ResultSet x = ps.executeQuery();
+            if (x.next()) {
+                System.out.println("Login realizado com sucesso");
+                System.out.println(x.getString("tipo"));
+                return x.getString("tipo");
+            } else {
+                System.out.println("Login falhou: usuário ou senha inválidos");
+                return null;
+            }
+        } catch (SQLException ex) {
+            System.out.println("Erro ao executar a query " + ex.getMessage());
+            return null;
+        }
+    }
+
+    public void aplicarNota(int idAluno, String materia, String nota, String descricao) {
+        String query = "INSERT INTO nota (aluno_id, disciplina, nota,data, descricao) VALUES (?, ?, ?, ?, ?)";
+        try (PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setInt(1, idAluno);
+            ps.setString(2, materia);
+            ps.setString(3, nota);
+            ps.setDate(4, new java.sql.Date(System.currentTimeMillis()));
+            ps.setString(5, descricao);
+            ps.executeUpdate();
+        } catch (SQLException ex) {
+            System.out.println("Erro ao aplicar a nota " + ex.getMessage());
+        }
+    }
 }

@@ -5,6 +5,9 @@
 package mikron.classeconectada.Telas;
 
 import mikron.classeconectada.System.Util;
+import mikron.classeconectada.db.DBUtil;
+
+import javax.swing.*;
 
 /**
  *
@@ -15,8 +18,11 @@ public class TelaLogin extends javax.swing.JFrame {
     /**
      * Creates new form TelaLogin
      */
+
+    DBUtil db;
     public TelaLogin() {
         initComponents();
+        db = new DBUtil();
     }
 
     /**
@@ -134,7 +140,15 @@ public class TelaLogin extends javax.swing.JFrame {
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         // TODO add your handling code here:
         // BOTAO
-        Util.tela(new TelaInicial(),this);
+        String login = jTextField2.getText();
+        String senha = jPasswordField1.getText();
+
+        String loginKey = db.login(login, senha);
+        if(loginKey != null){
+            Util.tela(new TelaInicial(loginKey),this);
+            Util.userPermission = loginKey;
+        }else JOptionPane.showMessageDialog(this, "Login ou senha incorretos");
+
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jPasswordField1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jPasswordField1ActionPerformed

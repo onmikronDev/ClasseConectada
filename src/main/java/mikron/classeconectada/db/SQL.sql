@@ -7,39 +7,14 @@ CREATE TABLE user (
                       senha VARCHAR(255) NOT NULL,
                       email VARCHAR(255) UNIQUE NOT NULL,
                       telefone varchar(14) NOT NULL,
-                      endereco VARCHAR(255) NOT NULL
+                      endereco VARCHAR(255) NOT NULL,
+                      tipo ENUM('diretor', 'supervisor', 'professor', 'aluno') NOT NULL
 );
 
-CREATE TABLE diretor (
-                         id INT PRIMARY KEY AUTO_INCREMENT,
-                         nome VARCHAR(255) NOT NULL,
-                         cpf VARCHAR(14) UNIQUE NOT NULL,
-                         senha VARCHAR(255) NOT NULL,
-                         email VARCHAR(255) UNIQUE NOT NULL,
-                         telefone varchar(14) NOT NULL,
-                         endereco VARCHAR(255) NOT NULL,
-                         FOREIGN KEY (id) REFERENCES user(id)
-);
-
-CREATE TABLE supervisor (
-                            id INT PRIMARY KEY AUTO_INCREMENT,
-                            nome VARCHAR(255) NOT NULL,
-                            cpf VARCHAR(14) UNIQUE NOT NULL,
-                            senha VARCHAR(255) NOT NULL,
-                            email VARCHAR(255) UNIQUE NOT NULL,
-                            telefone varchar(14) NOT NULL,
-                            endereco VARCHAR(255) NOT NULL,
-                            FOREIGN KEY (id) REFERENCES user(id)
-);
 
 
 CREATE TABLE aluno (
                        id INT PRIMARY KEY AUTO_INCREMENT,
-                       nome VARCHAR(255) NOT NULL,
-                       cpf VARCHAR(14) UNIQUE NOT NULL,
-                       senha VARCHAR(255) NOT NULL,
-                       telefone VARCHAR(14) NOT NULL,
-                       endereco VARCHAR(255) NOT NULL,
                        pai VARCHAR(255) NOT NULL,
                        mae VARCHAR(255) NOT NULL,
                        turma_id INT NOT NULL,
@@ -49,13 +24,9 @@ CREATE TABLE aluno (
 
 CREATE table professor (
                            id INT PRIMARY KEY AUTO_INCREMENT,
-                           nome VARCHAR(255) NOT NULL,
-                           cpf VARCHAR(14) UNIQUE NOT NULL,
-                           senha VARCHAR(255) NOT NULL,
-                           email VARCHAR(255) UNIQUE NOT NULL,
-                           telefone varchar(14) NOT NULL,
-                           endereco VARCHAR(255) NOT NULL,
-                           formação VARCHAR(255) NOT NULL
+                           formação VARCHAR(255) NOT NULL,
+                           FOREIGN KEY (id) REFERENCES user(id)
+
 );
 
 create table turmas (
@@ -99,6 +70,8 @@ create table professor_turmas (
                                   FOREIGN KEY (turma_id) REFERENCES turmas(id)
 );
 
+
+
 create table relatorio (
                            id INT PRIMARY KEY AUTO_INCREMENT,
                            aluno_id INT NOT NULL,
@@ -116,5 +89,24 @@ create table nota (
                       FOREIGN KEY (aluno_id) REFERENCES aluno(id)
 );
 
+insert into user (nome, cpf, senha, email, telefone, endereco, tipo) values ('Diretor', '12345678900', 'senha123', '@gay', '123456789', 'Rua A, 123', 'diretor');
+insert into user (nome, cpf, senha, email, telefone, endereco, tipo) values ('Supervisor', '12345678903', 'senha123', '@bixa', '123456789', 'Rua A, 123', 'supervisor');
+insert into user (nome, cpf, senha, email, telefone, endereco, tipo) values ('Professor', '12345678901', 'senha123', '@viado', '123456789', 'Rua A, 123', 'professor');
+insert into professor (id, formação) values (2, 'Matemática');
+insert into user (nome, cpf, senha, email, telefone, endereco, tipo) values ('Aluno', '12345678902', 'senha123', '@homosexual', '123456789', 'Rua A, 123', 'aluno');
+
+insert turmas (nome, ano) values ('Turma A', 2023);
+insert into professor_turmas(professor_id, turma_id) values (2, 1);
+insert into aluno (id, pai, mae, turma_id) values (3, 'Pai', 'Mãe', 1);
+delete from aluno where id = 1;
+
+SELECT aluno.id, aluno.pai, aluno.mae, turmas.nome AS turma_nome
+FROM aluno
+         JOIN turmas ON aluno.turma_id = turmas.id
+WHERE turmas.nome = 'Turma A';
+
+select * from user;
+
+SELECT * FROM aluno WHERE turma_id = 1;
 
 show tables;

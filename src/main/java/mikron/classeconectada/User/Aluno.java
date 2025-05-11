@@ -26,12 +26,11 @@ public class Aluno extends User {
 	private Relatorio Relatorio;
 
 
-	public Aluno(int id, String nome, String CPF, String senha, String email) {
-		super(id, nome, CPF, senha, email);
+	public Aluno(int id, String nome, String CPF, String email) {
+		super(id, nome, CPF, CPF, email);
 		this.id = id;
 		Nome = nome;
 		this.CPF = CPF;
-		Senha = senha;
 		Email = email;
 	}
 

@@ -14,15 +14,14 @@ public class Main {
 
         DBUtil dbUtil = new DBUtil();
 
-        dbUtil.conexaoGeral();
 
         List<Turma> turmas = new ArrayList<Turma>();
 
         Diretor diretor = new Diretor(1,"Diretor@gmail.com","123456789", "12341234", "Jão");
 
-        Aluno aluno = new Aluno(1,"joão","123","1123","@gmail");
+        Aluno aluno = new Aluno(1,"joão","123","@gmail");
 
-        Turma turma = new Turma(1, "Sala 12");
+        Turma turma = new Turma(1, "Sala 12",2023);
         turmas.add(turma);
 
 
