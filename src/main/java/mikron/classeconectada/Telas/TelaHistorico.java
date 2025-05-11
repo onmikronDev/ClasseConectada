@@ -31,6 +31,25 @@ public class TelaHistorico extends javax.swing.JFrame {
         alunoID = db.getAlunoByName(aluno);
         // TODO add your handling code here:
 
+
+        DefaultTableModel modeljTable = new DefaultTableModel(new Object[][] {}, new String[] {"Lista de Materias"}) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false; // Makes all cells non-editable
+            }
+        };
+
+        jTable2.setModel(modeljTable);
+
+        DefaultTableModel modeljTable1 = new DefaultTableModel(new Object[][] {}, new String[] {"Id","Notas", "Data"}) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false; // Makes all cells non-editable
+            }
+        };
+
+        jTable1.setModel(modeljTable1);
+
         // Listar notas
         jTable2.getSelectionModel().addListSelectionListener(event -> {
             if (!event.getValueIsAdjusting()) {
@@ -213,7 +232,33 @@ public class TelaHistorico extends javax.swing.JFrame {
     private void jButton8ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton8ActionPerformed
         // TODO add your handling code here:
         // editar
-        JOptionPane.showMessageDialog(null,"Progresso...");
+        int selectedRow = jTable1.getSelectedRow();
+        String nota;
+        if (selectedRow != -1) {
+            try {
+                nota = JOptionPane.showInputDialog(this, "Digite a nova nota (Apenas numero):");
+                Integer.parseInt(nota);
+                if (nota.isEmpty()) {
+                    JOptionPane.showMessageDialog(this, "Nota inválida. Por favor, insira um número.");
+                    return;
+                }
+            }catch (NumberFormatException e) {
+                JOptionPane.showMessageDialog(this, "Nota inválida. Por favor, insira um número.");
+                return;
+            }
+            String conteudo = JOptionPane.showInputDialog(this, "Digite o nova descrição:");
+
+
+
+            db.editarNotas(Integer.parseInt((String) jTable1.getValueAt(selectedRow,0)), nota, conteudo);
+
+
+            JOptionPane.showMessageDialog(this, "Nota editada com sucesso.");
+            DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
+            model.setValueAt(nota, selectedRow, 1);
+        } else {
+            JOptionPane.showMessageDialog(this, "Selecione uma disciplina para editar.");
+        }
     }//GEN-LAST:event_jButton8ActionPerformed
 
     private void jButton9ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton9ActionPerformed
@@ -231,13 +276,29 @@ public class TelaHistorico extends javax.swing.JFrame {
     private void jButton11ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton11ActionPerformed
         // TODO add your handling code here:
         // visualizar
-        JOptionPane.showMessageDialog(null,"Progresso...");
+        int selectedRow = jTable1.getSelectedRow();
+        if (selectedRow != -1) {
+            String id = (String) jTable1.getValueAt(selectedRow, 0);
+            String conteudo = db.getNotaDescricaoByID(Integer.parseInt(id));
+            JOptionPane.showMessageDialog(this, "Conteudo: " + conteudo);
+        } else {
+            JOptionPane.showMessageDialog(this, "Selecione uma disciplina para visualizar.");
+        }
     }//GEN-LAST:event_jButton11ActionPerformed
 
     private void jButton12ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton12ActionPerformed
         // TODO add your handling code here:
         // deletar
-        JOptionPane.showMessageDialog(null,"Progresso...");
+        int selectedRow = jTable1.getSelectedRow();
+        if (selectedRow != -1) {
+            String id = (String) jTable1.getValueAt(selectedRow, 0);
+            db.deletarNota(Integer.parseInt(id));
+            JOptionPane.showMessageDialog(this, "Nota deletada com sucesso.");
+            DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
+            model.removeRow(selectedRow);
+        } else {
+            JOptionPane.showMessageDialog(this, "Selecione uma disciplina para deletar.");
+        }
     }//GEN-LAST:event_jButton12ActionPerformed
 
     /**

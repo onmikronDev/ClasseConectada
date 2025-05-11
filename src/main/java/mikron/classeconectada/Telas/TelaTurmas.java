@@ -50,7 +50,6 @@ public class TelaTurmas extends javax.swing.JFrame {
         jTable1.setModel(modeljTable1);
 
 
-
         db.listasTurma(jTable2);
 
         jTable2.getSelectionModel().addListSelectionListener(event -> {
@@ -272,7 +271,13 @@ public class TelaTurmas extends javax.swing.JFrame {
     private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
         // TODO add your handling code here:
         // observações
-        Util.tela(new TelaObservacao((String) jTable1.getValueAt(jTable1.getSelectedRow(),0)),this,false);
+
+        if (jTable1.getSelectedRow() == -1) {
+            JOptionPane.showMessageDialog(this, "Selecione um aluno para adicionar observações.");
+            return;
+        }
+
+        Util.tela(new TelaObservacao((String) jTable1.getValueAt(jTable1.getSelectedRow(),0)),this);
     }//GEN-LAST:event_jButton5ActionPerformed
 
     private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed

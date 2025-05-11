@@ -281,6 +281,84 @@ public class DBUtil {
         }
     }
 
+    public void editarNotas(int id, String nota, String descricao) {
+        String query = "UPDATE nota SET nota = ?, descricao = ? WHERE id = ?";
+        try (PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setString(1, nota);
+            ps.setString(2, descricao);
+            ps.setInt(3, id);
+            ps.executeUpdate();
+            System.out.println("Nota editada com sucesso");
+        } catch (SQLException ex) {
+            System.out.println("Erro ao editar a nota " + ex.getMessage());
+        }
+    }
+
+    public void deletarNota(int id) {
+        String query = "DELETE FROM nota WHERE id = ?";
+        try (PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setInt(1, id);
+            ps.executeUpdate();
+        } catch (SQLException ex) {
+            System.out.println("Erro ao deletar a nota " + ex.getMessage());
+        }
+    }
+
+
+    public void listarObservacaoNaTabela(JTable jTable1, int alunoID) {
+        String query = "SELECT * FROM observacao WHERE aluno_id = ?";
+        try (PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setInt(1, alunoID);
+            ResultSet rs = ps.executeQuery();
+            DefaultTableModel tabelaLista = (DefaultTableModel) jTable1.getModel();
+            jTable1.setRowSorter(new TableRowSorter(tabelaLista));
+            while (rs.next()) {
+                Object[] obj = new Object[]{
+                        rs.getString("id"),
+                        rs.getString("data"),
+                };
+                tabelaLista.addRow(obj);
+            }
+        } catch (SQLException ex) {
+            System.out.println("Erro ao listar observações " + ex.getMessage());
+        }
+    }
+
+    public void editarObservacao(int id, String conteudo) {
+        String query = "UPDATE observacao SET conteudo = ? WHERE id = ?";
+        try (PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setString(1, conteudo);
+            ps.setInt(2, id);
+            ps.executeUpdate();
+        } catch (SQLException ex) {
+            System.out.println("Erro ao editar observação " + ex.getMessage());
+        }
+    }
+
+    public void deletarObservacao(int id) {
+        String query = "DELETE FROM observacao WHERE id = ?";
+        try (PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setInt(1, id);
+            ps.executeUpdate();
+        } catch (SQLException ex) {
+            System.out.println("Erro ao deletar observação " + ex.getMessage());
+        }
+    }
+
+    public String getObservacaoByID(int id) {
+        String query = "SELECT * FROM observacao WHERE id = ?";
+        try (PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setInt(1, id);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getString("conteudo");
+            }
+        } catch (SQLException ex) {
+            System.out.println("Erro ao executar a query " + ex.getMessage());
+        }
+        return null;
+    }
+
     public void listarNotasNaTabela(JTable jTable1, int alunoID, String disciplina) {
         String query = "SELECT * FROM nota WHERE aluno_id = ? AND disciplina = ?";
         try (PreparedStatement ps = conn.prepareStatement(query)) {
@@ -291,6 +369,7 @@ public class DBUtil {
             jTable1.setRowSorter(new TableRowSorter(tabelaLista));
             while (rs.next()) {
                 Object[] obj = new Object[]{
+                        rs.getString("id"),
                         rs.getString("nota"),
                         rs.getString("data"),
                 };
@@ -299,5 +378,19 @@ public class DBUtil {
         } catch (SQLException ex) {
             System.out.println("Erro ao listar notas " + ex.getMessage());
         }
+    }
+
+    public String getNotaDescricaoByID(int id) {
+        String query = "SELECT * FROM nota WHERE id = ?";
+        try (PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setInt(1, id);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getString("descricao");
+            }
+        } catch (SQLException ex) {
+            System.out.println("Erro ao executar a query " + ex.getMessage());
+        }
+        return null;
     }
 }

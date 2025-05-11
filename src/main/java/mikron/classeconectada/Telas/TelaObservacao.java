@@ -152,7 +152,7 @@ public class TelaObservacao extends javax.swing.JFrame {
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Erro ao enviar observação, um erro inesperado aconteceu", "Erro", JOptionPane.ERROR_MESSAGE);
         }
-        this.dispose();
+        Util.tela(new TelaInicial(Util.userPermission), this);
     }//GEN-LAST:event_jButton13ActionPerformed
 
     /**

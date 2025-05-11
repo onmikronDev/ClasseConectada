@@ -8,6 +8,7 @@ import mikron.classeconectada.System.Util;
 import mikron.classeconectada.db.DBUtil;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
 
 /**
  *
@@ -24,6 +25,9 @@ public class TelaListaDeObservacoes extends javax.swing.JFrame {
         db = new DBUtil();
         this.aluno = aluno;
         initComponents();
+
+        db.listarObservacaoNaTabela(jTable1,db.getAlunoByName(aluno));
+
     }
 
     /**
@@ -55,11 +59,10 @@ public class TelaListaDeObservacoes extends javax.swing.JFrame {
         jTable1.setForeground(new java.awt.Color(255, 255, 255));
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {"Testing"},
-                {"Testing"}
+
             },
             new String [] {
-                "Lista de Observações"
+                "id", "Data"
             }
         ));
         jTable1.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
@@ -118,9 +121,9 @@ public class TelaListaDeObservacoes extends javax.swing.JFrame {
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(17, 17, 17)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 144, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(50, 50, 50)
+                .addContainerGap()
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 187, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jButton12, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jButton16, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -167,7 +170,15 @@ public class TelaListaDeObservacoes extends javax.swing.JFrame {
     private void jButton12ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton12ActionPerformed
         // TODO add your handling code here:
         // visualizar
-        JOptionPane.showMessageDialog(null,"Progresso...");
+
+        int selectedRow = jTable1.getSelectedRow();
+        if (selectedRow != -1) {
+            int id = Integer.parseInt((String) jTable1.getValueAt(selectedRow, 0));
+            JOptionPane.showMessageDialog(this, "Conteudo:" + db.getObservacaoByID(id));
+        } else {
+            JOptionPane.showMessageDialog(this, "Selecione uma linha para visualizar.");
+        }
+
     }//GEN-LAST:event_jButton12ActionPerformed
 
     private void jButton13ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton13ActionPerformed
@@ -180,20 +191,36 @@ public class TelaListaDeObservacoes extends javax.swing.JFrame {
     private void jButton14ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton14ActionPerformed
         // TODO add your handling code here:
         // editar
-        JOptionPane.showMessageDialog(null,"Progresso...");
+        int selectedRow = jTable1.getSelectedRow();
+        if (selectedRow != -1) {
+            int id = Integer.parseInt((String) jTable1.getValueAt(selectedRow, 0));
+            String conteudo = JOptionPane.showInputDialog("Conteudo:", db.getObservacaoByID(id));
+            db.editarObservacao(id, conteudo);
+            JOptionPane.showMessageDialog(this, "Observação editada com sucesso.");
+        } else {
+            JOptionPane.showMessageDialog(this, "Selecione uma linha para editar.");
+        }
     }//GEN-LAST:event_jButton14ActionPerformed
 
     private void jButton15ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton15ActionPerformed
         // TODO add your handling code here:
         // adicionar
-        JOptionPane.showMessageDialog(null,"Progresso...");
-
+        Util.tela(new TelaObservacao(aluno),this);
     }//GEN-LAST:event_jButton15ActionPerformed
 
     private void jButton16ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton16ActionPerformed
         // TODO add your handling code here:
         // deletar
-        JOptionPane.showMessageDialog(null,"Progresso...");
+        int selectedRow = jTable1.getSelectedRow();
+        if (selectedRow != -1) {
+            int id = Integer.parseInt((String) jTable1.getValueAt(selectedRow, 0));
+            db.deletarObservacao(id);
+            DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
+            model.removeRow(selectedRow);
+            JOptionPane.showMessageDialog(this, "Observação deletada com sucesso.");
+        } else {
+            JOptionPane.showMessageDialog(this, "Selecione uma linha para deletar.");
+        }
     }//GEN-LAST:event_jButton16ActionPerformed
 
     /**
