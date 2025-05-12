@@ -15,12 +15,22 @@ public class TelaTipoUser extends javax.swing.JFrame {
     /**
      * Creates new form TelaCadrasto
      */
-    static String user;
-    public TelaTipoUser(String user) {
-        TelaTipoUser.user = user;
+
+
+
+    static String tela;
+    public TelaTipoUser(String tela) {
+        TelaTipoUser.tela = tela;
         initComponents();
     }
 
+    public void setTela(String tipo){
+        if(tela.equals("cadrasto")){
+            Util.tela(new TelaCadrasto(tipo),this);
+        } else if(tela.equals("user")){
+            Util.tela(new TelaUsuario(tipo),this);
+        }
+    }
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -48,13 +58,6 @@ public class TelaTipoUser extends javax.swing.JFrame {
         jLabel3.setText("Deseja Cadastrar um:");
 
 
-        if(user.equals("cadrasto")){
-            setTitle("Cadastro");
-            jLabel3.setText("Deseja Cadastrar um:");
-        } else if(user.equals("user")){
-            setTitle("user");
-            jLabel3.setText("Deseja Acessar um Usuario:");
-        }
 
         jButton13.setBackground(new java.awt.Color(26, 87, 82));
         jButton13.setForeground(new java.awt.Color(255, 255, 255));
@@ -154,34 +157,31 @@ public class TelaTipoUser extends javax.swing.JFrame {
                 .addGap(0, 0, 0))
         );
 
+
+        if(tela.equals("cadrasto")){
+            setTitle("Cadastro");
+            jLabel3.setText("Deseja Cadastrar um:");
+        } else if(tela.equals("user")){
+            setTitle("user");
+            jLabel3.setText("Deseja Acessar um Usuario:");
+        }
+
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton13ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton13ActionPerformed
         // TODO add your handling code here:
-        if(user.equals("cadrasto")){
-            Util.tela(new TelaCadrasto(),this);
-        } else if(user.equals("user")){
-            Util.tela(new TelaUsuario(),this);
-        }
+        setTela(jButton13.getText());
     }//GEN-LAST:event_jButton13ActionPerformed
 
     private void jButton14ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton14ActionPerformed
         // TODO add your handling code here:
-        if(user.equals("cadrasto")){
-            Util.tela(new TelaCadrasto(),this);
-        } else if(user.equals("user")){
-            Util.tela(new TelaUsuario(),this);
-        }
+        setTela(jButton14.getText());
     }//GEN-LAST:event_jButton14ActionPerformed
 
     private void jButton15ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton15ActionPerformed
         // TODO add your handling code here:
-        if(user.equals("cadrasto")){
-            Util.tela(new TelaCadrasto(),this);
-        } else if(user.equals("user")){
-            Util.tela(new TelaUsuario(),this);
-        }
+        setTela(jButton15.getText());
     }//GEN-LAST:event_jButton15ActionPerformed
 
     private void jButton16ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton16ActionPerformed
@@ -191,11 +191,7 @@ public class TelaTipoUser extends javax.swing.JFrame {
 
     private void jButton17ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton17ActionPerformed
         // TODO add your handling code here:
-        if(user.equals("cadrasto")){
-            Util.tela(new TelaCadrasto(),this);
-        } else if(user.equals("user")){
-            Util.tela(new TelaUsuario(),this);
-        }
+        setTela(jButton17.getText());
     }//GEN-LAST:event_jButton17ActionPerformed
 
     /**
@@ -229,15 +225,12 @@ public class TelaTipoUser extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new TelaTipoUser(user).setVisible(true);
+                new TelaTipoUser("").setVisible(true);
 
             }
         });
     }
 
-    public static String getUser() {
-        return user;
-    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton13;

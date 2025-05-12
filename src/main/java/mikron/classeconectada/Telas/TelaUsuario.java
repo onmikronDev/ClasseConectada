@@ -5,6 +5,11 @@
 package mikron.classeconectada.Telas;
 
 import mikron.classeconectada.System.Util;
+import mikron.classeconectada.db.DBUtil;
+
+import javax.swing.table.DefaultTableModel;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -15,8 +20,63 @@ public class TelaUsuario extends javax.swing.JFrame {
     /**
      * Creates new form TelaUsuario2
      */
-    public TelaUsuario() {
+    String tipoUser;
+    DBUtil db;
+    public TelaUsuario(String tipoUser) {
+        this.tipoUser = tipoUser;
+        db = new DBUtil();
         initComponents();
+        
+        jTable2.getSelectionModel().addListSelectionListener(event -> {
+            if (!event.getValueIsAdjusting()) {
+                int selectedRow = jTable2.getSelectedRow();
+                if (selectedRow != -1) {
+                    System.out.println("Selected row: " + selectedRow);
+                    System.out.println("Value: " + jTable2.getValueAt(selectedRow, 0));
+
+                    DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
+                    model.setRowCount(0);
+                    db.listarUserByProfissao(jTable1, String.valueOf(jTable2.getValueAt(selectedRow, 0)));
+                }
+            }
+        });
+
+
+        jTable1.getSelectionModel().addListSelectionListener(event -> {
+            if (!event.getValueIsAdjusting()) {
+                int selectedRow = jTable1.getSelectedRow();
+                if (selectedRow != -1) {
+                    System.out.println("Selected row: GAY   " + selectedRow);
+                    System.out.println("Value: " + jTable1.getValueAt(selectedRow, 0));
+
+                    String[] userdata = db.getUserDataByID(db.getUserIDByName(String.valueOf(jTable1.getValueAt(selectedRow, 0))));
+
+                    for (int i = 0; i < userdata.length; i++) {
+                        if (userdata[i] == null) {
+                            userdata[i] = "N/A";
+                        }
+
+                        jLabel3.setText("Nome: " + userdata[0]);
+                        jLabel5.setText("Email: " + userdata[1]);
+                        jLabel4.setText("Endereço: " + userdata[2]);
+                        jLabel6.setText("Telefone: " + userdata[3]);
+                        jLabel7.setText("CPF: " + userdata[4]);
+//                        jLabel8.setText("Pai: " + userdata[5]);
+//                        jLabel12.setText("Mãe: " + userdata[6]);
+//                        jLabel9.setText("Materias: " + userdata[7]);
+//                        jLabel10.setText("Turmas: " + userdata[8]);
+//                        jTextArea1.setText(userdata[9]);
+//                        jTextArea3.setText(userdata[10]);
+
+
+                    }
+
+                }
+            }
+        });
+
+
+
     }
 
     /**
@@ -61,18 +121,28 @@ public class TelaUsuario extends javax.swing.JFrame {
         jTable1.setForeground(new java.awt.Color(255, 255, 255));
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {"Testing"},
-                {"Testing"}
+
             },
             new String [] {
-                "Lista de Observações"
+                "Usuarios"
             }
-        ));
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
         jTable1.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         jTable1.setGridColor(new java.awt.Color(48, 100, 100));
         jTable1.setSelectionBackground(new java.awt.Color(48, 96, 107));
         jTable1.setShowGrid(true);
         jScrollPane1.setViewportView(jTable1);
+        if (jTable1.getColumnModel().getColumnCount() > 0) {
+            jTable1.getColumnModel().getColumn(0).setResizable(false);
+        }
 
         jScrollPane2.setBackground(new java.awt.Color(48, 100, 100));
 
@@ -80,18 +150,31 @@ public class TelaUsuario extends javax.swing.JFrame {
         jTable2.setForeground(new java.awt.Color(255, 255, 255));
         jTable2.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {"Testing"},
-                {"Testing"}
+                {"Diretor"},
+                {"Supervisor"},
+                {"Professor"},
+                {"Aluno"}
             },
             new String [] {
-                "Lista de Observações"
+                "Tipo De User"
             }
-        ));
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
         jTable2.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         jTable2.setGridColor(new java.awt.Color(48, 100, 100));
         jTable2.setSelectionBackground(new java.awt.Color(48, 96, 107));
         jTable2.setShowGrid(true);
         jScrollPane2.setViewportView(jTable2);
+        if (jTable2.getColumnModel().getColumnCount() > 0) {
+            jTable2.getColumnModel().getColumn(0).setResizable(false);
+        }
 
         jTextArea1.setBackground(new java.awt.Color(48, 100, 100));
         jTextArea1.setColumns(20);
@@ -291,7 +374,7 @@ public class TelaUsuario extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new TelaUsuario().setVisible(true);
+                new TelaUsuario("").setVisible(true);
             }
         });
     }
