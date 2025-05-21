@@ -14,6 +14,7 @@ public class Main {
 
         DBUtil dbUtil = new DBUtil();
 
+        double bata = 3;
 
         List<Turma> turmas = new ArrayList<Turma>();
 

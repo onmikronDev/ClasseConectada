@@ -8,9 +8,9 @@ CREATE TABLE user (
                       email VARCHAR(255) UNIQUE NOT NULL,
                       telefone varchar(14) NOT NULL,
                       endereco VARCHAR(255) NOT NULL,
+                      observacao varchar(255) NOT NULL,
                       tipo ENUM('diretor', 'supervisor', 'professor', 'aluno') NOT NULL
 );
-
 
 
 CREATE TABLE aluno (
@@ -21,6 +21,8 @@ CREATE TABLE aluno (
                        FOREIGN KEY (id) REFERENCES user(id),
                        FOREIGN KEY (turma_id) REFERENCES turmas(id)
 );
+
+alter table aluno add column recado varchar(255) not null;
 
 CREATE table professor (
                            id INT PRIMARY KEY AUTO_INCREMENT,
@@ -52,9 +54,14 @@ create table turmas (
 create table chamada (
                          id INT PRIMARY KEY AUTO_INCREMENT,
                          aluno_id INT NOT NULL,
+                         turma_id INT NOT NULL,
                          data DATE NOT NULL,
-                         status ENUM('presente', 'ausente', 'justificada') NOT NULL
+                         status ENUM('presente', 'ausente', 'justificada') NOT NULL,
+                         FOREIGN KEY (aluno_id) REFERENCES aluno(id),
+                         FOREIGN KEY (turma_id) REFERENCES turmas(id)
 );
+
+drop table chamada;
 
 create table calendario (
                             id INT PRIMARY KEY AUTO_INCREMENT,
@@ -112,6 +119,8 @@ create table nota (
                       FOREIGN KEY (aluno_id) REFERENCES aluno(id)
 );
 
+select * from disciplina;
+
 insert into nota (aluno_id, disciplina, nota, data, descricao) values (3, 'Matemática', 8.5, '2023-10-01', 'Prova de Matemática');
 insert into nota (aluno_id, disciplina, nota, data, descricao) values (3, 'Português', 9.0, '2023-10-02', 'Prova de Português');
 insert into nota (aluno_id, disciplina, nota, data, descricao) values (3, 'História', 7.5, '2023-10-03', 'Prova de História');
@@ -153,11 +162,12 @@ select * from disciplina;
 
 insert into professor_turmas(professor_id, turma_id) values (2, 1);
 insert into aluno (id, pai, mae, turma_id) values (3, 'Pai', 'Mãe', 1);
-delete from aluno where id = 1;
+delete from user where id = 24;
 
 
 
-SELECT * FROM user WHERE nome = 'Aluno';
+SELECT * FROM user where tipo = 'aluno';
+select * from professor_turmas;
 
 
 
@@ -166,8 +176,12 @@ FROM aluno
          JOIN turmas ON aluno.turma_id = turmas.id
 WHERE turmas.nome = 'Turma A';
 
-select * from user;
+delete from user where tipo = 'aluno';
 
-SELECT * FROM aluno WHERE turma_id = 1;
+select * from user where tipo = 'aluno';
+
+select * from user where tipo = 'aluno';
+
+SELECT * FROM aluno;
 
 show tables;

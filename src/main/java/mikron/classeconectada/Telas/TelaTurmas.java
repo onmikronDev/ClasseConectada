@@ -11,6 +11,8 @@ import mikron.classeconectada.db.DBUtil;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableRowSorter;
+import java.sql.Date;
+import java.sql.SQLData;
 
 /**
  *
@@ -25,6 +27,8 @@ public class TelaTurmas extends javax.swing.JFrame {
     DBUtil db;
     String status = "Presente";
     private String alunoSelecionado;
+    int idTurmaSelecionada;
+    private int idAlunoSelecionado;
     public TelaTurmas() {
         initComponents();
         DBUtil db = new DBUtil();
@@ -58,11 +62,18 @@ public class TelaTurmas extends javax.swing.JFrame {
                 if (selectedRow != -1) {
                     System.out.println("Selected row: " + selectedRow);
                     System.out.println("Value: " + jTable2.getValueAt(selectedRow, 0));
+                    idTurmaSelecionada = db.getTurmaIDByName((String) jTable2.getValueAt(selectedRow, 0));
 
                     DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
                     model.setRowCount(0);
 
                     db.listarAlunosNaTabela(jTable1, (String) jTable2.getValueAt(selectedRow, 0));
+                    for (int i = 0; i < jTable1.getRowCount(); i++) {
+                        String aluno = (String) jTable1.getValueAt(i, 0);
+                        int idAluno = db.getAlunoByName(aluno);
+                        String status = db.getChamadaStatus(idAluno, Util.getSQLDate(), idTurmaSelecionada);
+                        jTable1.setValueAt(status, i, 1);
+                    }
                 }
             }
         });
@@ -150,7 +161,7 @@ public class TelaTurmas extends javax.swing.JFrame {
 
         jButton5.setBackground(new java.awt.Color(26, 87, 82));
         jButton5.setForeground(new java.awt.Color(255, 255, 255));
-        jButton5.setText("Observações");
+        jButton5.setText("Gerar Observação");
         jButton5.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton5ActionPerformed(evt);
@@ -251,15 +262,33 @@ public class TelaTurmas extends javax.swing.JFrame {
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
         // TODO add your handling code here:
         // status presença
-
+        Date data = Util.getSQLDate();
+        int idTurma = db.getTurmaIDByName((String) jTable2.getValueAt(jTable2.getSelectedRow(), 0));
+        System.out.println("idTurmaSelecionada: " + idTurma);
         int selectedRow = jTable1.getSelectedRow();
         if (selectedRow != -1) {
+            idAlunoSelecionado = db.getAlunoByName((String) jTable1.getValueAt(selectedRow,0));
             if (status.equals("Presente")) {
-                status = "Faltou";
-            } else if (status.equals("Faltou")) {
+                status = "Ausente";
+                if(db.checkChamadaSQL(idAlunoSelecionado,data,idTurma)) {
+                    db.updateChamada(idAlunoSelecionado, data, idTurma, status);
+                } else {
+                    db.chamadaSQL(idAlunoSelecionado, data, idTurma, status);
+                }
+            } else if (status.equals("Ausente")) {
                 status = "justificada";
+                if(db.checkChamadaSQL(idAlunoSelecionado,data,idTurma)) {
+                    db.updateChamada(idAlunoSelecionado, data, idTurma, status);
+                } else {
+                    db.chamadaSQL(idAlunoSelecionado, data, idTurma, status);
+                }
             } else if (status.equals("justificada")) {
                 status = "Presente";
+                if(db.checkChamadaSQL(idAlunoSelecionado,Util.getSQLDate(),idTurma)) {
+                    db.updateChamada(idAlunoSelecionado, Util.getSQLDate(), idTurma, status);
+                } else {
+                    db.chamadaSQL(idAlunoSelecionado, Util.getSQLDate(), idTurma, status);
+                }
             }
             jTable1.setValueAt(status, selectedRow, 1);
         } else {

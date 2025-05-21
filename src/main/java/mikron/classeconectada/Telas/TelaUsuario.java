@@ -9,6 +9,7 @@ import mikron.classeconectada.db.DBUtil;
 
 import javax.swing.table.DefaultTableModel;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -22,6 +23,7 @@ public class TelaUsuario extends javax.swing.JFrame {
      */
     String tipoUser;
     DBUtil db;
+    private int selectedUserTypeRow = -1;
     public TelaUsuario(String tipoUser) {
         this.tipoUser = tipoUser;
         db = new DBUtil();
@@ -29,14 +31,14 @@ public class TelaUsuario extends javax.swing.JFrame {
         
         jTable2.getSelectionModel().addListSelectionListener(event -> {
             if (!event.getValueIsAdjusting()) {
-                int selectedRow = jTable2.getSelectedRow();
-                if (selectedRow != -1) {
-                    System.out.println("Selected row: " + selectedRow);
-                    System.out.println("Value: " + jTable2.getValueAt(selectedRow, 0));
+                selectedUserTypeRow = jTable2.getSelectedRow();
+                if (selectedUserTypeRow != -1) {
+                    System.out.println("Selected row: " + selectedUserTypeRow);
+                    System.out.println("Value: " + jTable2.getValueAt(selectedUserTypeRow, 0));
 
                     DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
                     model.setRowCount(0);
-                    db.listarUserByProfissao(jTable1, String.valueOf(jTable2.getValueAt(selectedRow, 0)));
+                    db.listarUserByProfissao(jTable1, String.valueOf(jTable2.getValueAt(selectedUserTypeRow, 0)));
                 }
             }
         });
@@ -45,29 +47,56 @@ public class TelaUsuario extends javax.swing.JFrame {
         jTable1.getSelectionModel().addListSelectionListener(event -> {
             if (!event.getValueIsAdjusting()) {
                 int selectedRow = jTable1.getSelectedRow();
-                if (selectedRow != -1) {
+                if (selectedRow != -1 && selectedUserTypeRow != -1) {
+                    String userType = jTable2.getValueAt(selectedUserTypeRow, 0).toString();
+
                     System.out.println("Selected row: GAY   " + selectedRow);
                     System.out.println("Value: " + jTable1.getValueAt(selectedRow, 0));
 
-                    String[] userdata = db.getUserDataByID(db.getUserIDByName(String.valueOf(jTable1.getValueAt(selectedRow, 0))));
+                    jLabel3.setText("Nome: ");
+                    jLabel5.setText("Email: ");
+                    jLabel4.setText("Endereço: ");
+                    jLabel6.setText("Telefone: ");
+                    jLabel7.setText("CPF: ");
+                    jLabel8.setText("Pai: ");
+                    jLabel12.setText("Mãe: ");
+                    jLabel9.setText("Materias: ");
+                    jLabel10.setText("Turmas: ");
+                    jTextArea1.setText("");
+                    jTextArea3.setText("");
+
+                    int userID = db.getUserIDByName(String.valueOf(jTable1.getValueAt(selectedRow, 0)));
+
+                    String[] userdata = db.getUserDataByID(userID);
 
                     for (int i = 0; i < userdata.length; i++) {
                         if (userdata[i] == null) {
                             userdata[i] = "N/A";
                         }
 
-                        jLabel3.setText("Nome: " + userdata[0]);
-                        jLabel5.setText("Email: " + userdata[1]);
-                        jLabel4.setText("Endereço: " + userdata[2]);
-                        jLabel6.setText("Telefone: " + userdata[3]);
-                        jLabel7.setText("CPF: " + userdata[4]);
-//                        jLabel8.setText("Pai: " + userdata[5]);
-//                        jLabel12.setText("Mãe: " + userdata[6]);
-//                        jLabel9.setText("Materias: " + userdata[7]);
-//                        jLabel10.setText("Turmas: " + userdata[8]);
-//                        jTextArea1.setText(userdata[9]);
-//                        jTextArea3.setText(userdata[10]);
+                        if(userType.equalsIgnoreCase("Professor")){
+                            String[] professor = db.getProfessorDataByID(userID);
+                            System.out.println("ID: " + userID);
+                            System.out.println(Arrays.toString(db.getProfessorDataByID(userID)));
+                            jLabel9.setText("Materias: " + professor[0]);
+                        }
 
+                        if(userType.equalsIgnoreCase("Aluno")){
+                            String[] aluno = db.getAlunoDataByID(userID);
+                            System.out.println("ID: " + userID);
+                            System.out.println(Arrays.toString(db.getAlunoDataByID(userID)));
+                            jLabel8.setText("Pai: " + aluno[0]);
+                            jLabel12.setText("Mãe: " + aluno[1]);
+                            jLabel10.setText("Turmas: " + db.getTurmaNameByID(Integer.parseInt(aluno[2])));
+                        }
+
+                        jLabel3.setText("Nome: " + userdata[0]);
+                        jLabel5.setText("Email: " + userdata[2]);
+                        jLabel4.setText("Endereço: " + userdata[3]);
+                        jLabel6.setText("Telefone: " + userdata[4]);
+                        jLabel7.setText("CPF: " + userdata[1]);
+                        jTextArea3.setText(userdata[5]);
+                        jTextArea3.setEditable(false);
 
                     }
 

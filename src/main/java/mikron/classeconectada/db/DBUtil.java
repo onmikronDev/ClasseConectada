@@ -193,6 +193,28 @@ public class DBUtil {
         }
     }
 
+    public List<Aluno> getListAlunosAll(){
+        List<Aluno> alunos = new ArrayList<>();
+        String query = "SELECT * FROM user WHERE tipo = 'aluno'";
+
+        try {
+            PreparedStatement ps = conn.prepareStatement(query);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                int id = rs.getInt("id");
+                String nome = rs.getString("nome");
+                String cpf = rs.getString("cpf");
+                String email = rs.getString("email");
+                Aluno aluno = new Aluno(id, nome, cpf, email);
+                alunos.add(aluno);
+            }
+        } catch (SQLException ex) {
+            System.out.println("Erro ao executar a query " + ex.getMessage());
+        }
+
+        return alunos;
+    }
+
     public List<Aluno> listarAlunosSQL(int turmaID) {
         List<Aluno> alunos = new ArrayList<>();
         String query = "SELECT * FROM aluno WHERE turma_id = ?";
@@ -392,6 +414,38 @@ public class DBUtil {
         return null;
     }
 
+    public String[] getAlunoDataByID(int id){
+        String query = "SELECT * FROM aluno WHERE id = ?";
+        try (PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setInt(1, id);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                String pai = rs.getString("pai");
+                String mae = rs.getString("mae");
+                String turma_id = rs.getString("turma_id");
+                return new String[]{pai, mae, turma_id};
+            }
+        } catch (SQLException ex) {
+            System.out.println("Erro ao executar a query " + ex.getMessage());
+        }
+        return null;
+    }
+
+    public String[] getProfessorDataByID(int id){
+        String query = "SELECT * FROM professor WHERE id = ?";
+        try (PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setInt(1, id);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                String formacao = rs.getString("formação");
+                return new String[]{formacao};
+            }
+        } catch (SQLException ex) {
+            System.out.println("Erro ao executar a query " + ex.getMessage());
+        }
+        return null;
+    }
+
     public void listarAlunosNaTabela(JTable tabelas) {
         List<Aluno> listakekw = listarAlunosSQL(-1);
         DefaultTableModel tabelaLista = (DefaultTableModel) tabelas.getModel();
@@ -401,6 +455,82 @@ public class DBUtil {
                     aluno.getNome()
             };
             tabelaLista.addRow(obj);
+        }
+    }
+
+    public void chamadaSQL(int alunoID, Date data,int turmaID,String status) {
+        String query = "INSERT INTO chamada (aluno_id,turma_id,data, status) VALUES (?, ?, ?, ?)";
+        try (PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setInt(1, alunoID);
+            ps.setDate(3, data);
+            ps.setInt(2, turmaID);
+            ps.setString(4, status);
+            ps.executeUpdate();
+            System.out.println("Chamada registrada com sucesso");
+        } catch (SQLException ex) {
+            System.out.println("Erro ao executar a query " + ex.getMessage());
+        }
+    }
+
+    public boolean checkChamadaSQL(int alunoID, Date data,int turmaID) {
+        String query = "SELECT * FROM chamada WHERE aluno_id = ? AND data = ? AND turma_id = ?";
+        try (PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setInt(1, alunoID);
+            ps.setDate(2, data);
+            ps.setInt(3, turmaID);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return true;
+            }
+        } catch (SQLException ex) {
+            System.out.println("Erro ao executar a query " + ex.getMessage());
+        }
+        return false;
+    }
+
+
+    public void updateChamada(int alunoID, Date data,int turmaID,String status) {
+        String query = "UPDATE chamada SET status = ? WHERE aluno_id = ? AND data = ? AND turma_id = ?";
+        try (PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setString(1, status);
+            ps.setInt(2, alunoID);
+            ps.setDate(3, data);
+            ps.setInt(4, turmaID);
+            ps.executeUpdate();
+            System.out.println("Chamada atualizada com sucesso");
+        } catch (SQLException ex) {
+            System.out.println("Erro ao executar a query " + ex.getMessage());
+            System.out.println("ERRO AQUI CHAMADA UPDATE");
+        }
+    }
+
+    public String getChamadaStatus(int alunoID, Date data,int turmaID) {
+        String query = "SELECT status FROM chamada WHERE aluno_id = ? AND data = ? AND turma_id = ?";
+        try (PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setInt(1, alunoID);
+            ps.setDate(2, data);
+            ps.setInt(3, turmaID);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getString("status");
+            }
+        } catch (SQLException ex) {
+            System.out.println("Erro ao executar a query " + ex.getMessage());
+        }
+        return null;
+    }
+
+    public void getStatusChamadaByAluno(String alunoName, Date data) {
+        String query = "SELECT status FROM chamada WHERE aluno_id = (SELECT id FROM user WHERE nome = ?) AND data = ?";
+        try (PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setString(1, alunoName);
+            ps.setDate(2, data);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                System.out.println("Status: " + rs.getString("status"));
+            }
+        } catch (SQLException ex) {
+            System.out.println("Erro ao executar a query " + ex.getMessage());
         }
     }
 
@@ -416,6 +546,7 @@ public class DBUtil {
         for(Aluno aluno : listakekw){
             Object[] obj = new Object[]{
                     aluno.getNome(),
+
             };
             tabelaLista.addRow(obj);
         }
