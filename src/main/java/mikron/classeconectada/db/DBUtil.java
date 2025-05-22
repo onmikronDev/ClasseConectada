@@ -79,6 +79,24 @@ public class DBUtil {
     }
 
 
+    public void listarEventosTabelas(JTable tabelas) {
+        String query = "SELECT * FROM eventos";
+        try (PreparedStatement ps = conn.prepareStatement(query)) {
+            ResultSet rs = ps.executeQuery();
+            DefaultTableModel tabelaLista = (DefaultTableModel) tabelas.getModel();
+            tabelas.setRowSorter(new TableRowSorter<>(tabelaLista));
+            while (rs.next()) {
+                Object[] obj = new Object[]{
+                        rs.getString("evento"),
+                        rs.getString("data"),
+                };
+                tabelaLista.addRow(obj);
+            }
+        } catch (SQLException ex) {
+            System.out.println("Erro ao executar a query " + ex.getMessage());
+        }
+    }
+
     public List<String> listarDisciplicasNaTabela(JTable tabelas) {
         List<String> listakekw = listarDisciplina();
         DefaultTableModel tabelaLista = (DefaultTableModel) tabelas.getModel();

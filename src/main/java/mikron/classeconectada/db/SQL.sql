@@ -31,6 +31,15 @@ CREATE table professor (
 
 );
 
+create table eventos(
+                        id INT PRIMARY KEY AUTO_INCREMENT,
+                        evento VARCHAR(255) NOT NULL,
+                        data DATE NOT NULL,
+                        descricao TEXT NOT NULL,
+                        id_turma INT NOT NULL,
+                        FOREIGN KEY (id_turma) REFERENCES turmas(id)
+);
+
 CREATE TABLE disciplina (
                             id INT PRIMARY KEY AUTO_INCREMENT,
                             nome VARCHAR(255) NOT NULL
@@ -182,6 +191,6 @@ select * from user where tipo = 'aluno';
 
 select * from user where tipo = 'aluno';
 
-SELECT * FROM aluno;
+SELECT * FROM eventos;
 
 show tables;

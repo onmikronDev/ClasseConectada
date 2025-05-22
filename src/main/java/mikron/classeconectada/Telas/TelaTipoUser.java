@@ -48,7 +48,6 @@ public class TelaTipoUser extends javax.swing.JFrame {
         jButton16 = new javax.swing.JButton();
         jButton17 = new javax.swing.JButton();
 
-
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
         jPanel1.setBackground(new java.awt.Color(91, 133, 135));
@@ -56,8 +55,6 @@ public class TelaTipoUser extends javax.swing.JFrame {
         jLabel3.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         jLabel3.setForeground(new java.awt.Color(255, 255, 255));
         jLabel3.setText("Deseja Cadastrar um:");
-
-
 
         jButton13.setBackground(new java.awt.Color(26, 87, 82));
         jButton13.setForeground(new java.awt.Color(255, 255, 255));
@@ -147,7 +144,9 @@ public class TelaTipoUser extends javax.swing.JFrame {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addGroup(layout.createSequentialGroup()
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -156,15 +155,6 @@ public class TelaTipoUser extends javax.swing.JFrame {
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(0, 0, 0))
         );
-
-
-        if(tela.equals("cadrasto")){
-            setTitle("Cadastro");
-            jLabel3.setText("Deseja Cadastrar um:");
-        } else if(tela.equals("user")){
-            setTitle("user");
-            jLabel3.setText("Deseja Acessar um Usuario:");
-        }
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
