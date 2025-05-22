@@ -4,11 +4,12 @@
  */
 package mikron.classeconectada.Telas;
 
+import mikron.classeconectada.System.Relatorio;
 import mikron.classeconectada.System.Util;
 import mikron.classeconectada.User.Aluno;
 import mikron.classeconectada.db.DBUtil;
-
 import javax.swing.*;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -20,12 +21,14 @@ public class TelaRelatorio extends javax.swing.JFrame {
     /**
      * Creates new form TelaRelatorio
      */
-    DBUtil db;
+    private List<Aluno> alunos;
+    private Aluno alunoSelecionado;
     public TelaRelatorio() {
         initComponents();
-        db = new DBUtil();
-        List<Aluno> alunos = db.getListAlunosAll();
+         alunos = DBUtil.getListAlunos();
+        System.out.println("Alunos: " + alunos);
         for (Aluno aluno : alunos) {
+            System.out.println(aluno.getNome());
             jComboBox1.addItem(aluno.getNome());
         }
 
@@ -146,6 +149,8 @@ public class TelaRelatorio extends javax.swing.JFrame {
     private void jButton13ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton13ActionPerformed
         // TODO add your handling code here:
         JOptionPane.showMessageDialog(null, "Relatório enviado com sucesso! do aluno " + jComboBox1.getSelectedItem(), "Sucesso", JOptionPane.INFORMATION_MESSAGE);
+        Relatorio relatorio = new Relatorio(alunoSelecionado);
+        relatorio.gerarRelatorio();
         Util.tela(new TelaInicial(Util.userPermission),this);
     }//GEN-LAST:event_jButton13ActionPerformed
 
@@ -155,7 +160,8 @@ public class TelaRelatorio extends javax.swing.JFrame {
         if(jComboBox1.getSelectedIndex() == -1) {
             jTextField2.setText("");
         } else {
-            jTextField2.setText(db.getTurmaNameByAlunoName((String) jComboBox1.getSelectedItem()));
+            alunoSelecionado = alunos.get(jComboBox1.getSelectedIndex());
+            jTextField2.setText(alunoSelecionado.getTurma().getNome());
         }
     }//GEN-LAST:event_jComboBox1ActionPerformed
 

@@ -5,6 +5,7 @@
 package mikron.classeconectada.Telas;
 
 import mikron.classeconectada.System.Util;
+import mikron.classeconectada.db.DBUtil;
 
 /**
  *
@@ -18,6 +19,7 @@ public class TelaInicial extends javax.swing.JFrame {
     private String tipoPerm;
     public TelaInicial(String tipoPerm) {
         initComponents();
+        DBUtil.conexaoGeral();
         this.tipoPerm = tipoPerm;
         System.out.println(tipoPerm);
     }
@@ -230,8 +232,6 @@ public class TelaInicial extends javax.swing.JFrame {
             }
         });
     }
-
-
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;

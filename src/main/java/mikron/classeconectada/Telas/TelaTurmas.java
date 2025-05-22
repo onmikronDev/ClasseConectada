@@ -4,15 +4,15 @@
  */
 package mikron.classeconectada.Telas;
 
+import mikron.classeconectada.System.Chamada;
 import mikron.classeconectada.System.Turma;
 import mikron.classeconectada.System.Util;
+import mikron.classeconectada.User.Aluno;
 import mikron.classeconectada.db.DBUtil;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableRowSorter;
 import java.sql.Date;
-import java.sql.SQLData;
 
 /**
  *
@@ -24,37 +24,19 @@ public class TelaTurmas extends javax.swing.JFrame {
      * Creates new form TelaTurmas
      */
 
-    DBUtil db;
     String status = "Presente";
-    private String alunoSelecionado;
     int idTurmaSelecionada;
     private int idAlunoSelecionado;
+    Turma turmaSelecionada;
+    Aluno alunoSelecionado;
+    Chamada chamada;
     public TelaTurmas() {
         initComponents();
-        DBUtil db = new DBUtil();
-        this.db = db;
 
 
-        DefaultTableModel modeljTable = new DefaultTableModel(new Object[][] {}, new String[] {"Lista de Turmas"}) {
-            @Override
-            public boolean isCellEditable(int row, int column) {
-                return false; // Makes all cells non-editable
-            }
-        };
-
-        jTable2.setModel(modeljTable);
-
-        DefaultTableModel modeljTable1 = new DefaultTableModel(new Object[][] {}, new String[] {"Lista de Alunos", "Presença"}) {
-            @Override
-            public boolean isCellEditable(int row, int column) {
-                return false; // Makes all cells non-editable
-            }
-        };
-
-        jTable1.setModel(modeljTable1);
 
 
-        db.listasTurma(jTable2);
+        DBUtil.listarTurmasTabela(jTable2); // arrumar
 
         jTable2.getSelectionModel().addListSelectionListener(event -> {
             if (!event.getValueIsAdjusting()) {
@@ -62,17 +44,21 @@ public class TelaTurmas extends javax.swing.JFrame {
                 if (selectedRow != -1) {
                     System.out.println("Selected row: " + selectedRow);
                     System.out.println("Value: " + jTable2.getValueAt(selectedRow, 0));
-                    idTurmaSelecionada = db.getTurmaIDByName((String) jTable2.getValueAt(selectedRow, 0));
+                    idTurmaSelecionada = DBUtil.getTurmaIDByName(jTable2.getValueAt(selectedRow, 0).toString());
+
+                    turmaSelecionada = DBUtil.getTurma(idTurmaSelecionada);
+                    assert turmaSelecionada != null;
+                    turmaSelecionada.setChamada(DBUtil.listarChamadaSQL(turmaSelecionada.getId()));
 
                     DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
                     model.setRowCount(0);
 
-                    db.listarAlunosNaTabela(jTable1, (String) jTable2.getValueAt(selectedRow, 0));
-                    for (int i = 0; i < jTable1.getRowCount(); i++) {
-                        String aluno = (String) jTable1.getValueAt(i, 0);
-                        int idAluno = db.getAlunoByName(aluno);
-                        String status = db.getChamadaStatus(idAluno, Util.getSQLDate(), idTurmaSelecionada);
-                        jTable1.setValueAt(status, i, 1);
+                    for (Aluno aluno : turmaSelecionada.getAlunos()) {
+                        alunoSelecionado = aluno;
+                        chamada = new Chamada(aluno, Util.getSQLDate(), turmaSelecionada);
+                        status = chamada.getStatus();
+                        model.addRow(new Object[]{aluno.getNome(), status});
+                        turmaSelecionada.addChamada(chamada);
                     }
                 }
             }
@@ -118,7 +104,15 @@ public class TelaTurmas extends javax.swing.JFrame {
             new String [] {
                 "Lista de Alunos", "Presença"
             }
-        ));
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
         jTable1.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         jTable1.setGridColor(new java.awt.Color(48, 100, 100));
         jTable1.setSelectionBackground(new java.awt.Color(48, 96, 107));
@@ -136,7 +130,15 @@ public class TelaTurmas extends javax.swing.JFrame {
             new String [] {
                 "Lista de Turmas"
             }
-        ));
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
         jTable2.setGridColor(new java.awt.Color(48, 100, 100));
         jTable2.setSelectionBackground(new java.awt.Color(48, 96, 107));
         jScrollPane2.setViewportView(jTable2);
@@ -161,7 +163,7 @@ public class TelaTurmas extends javax.swing.JFrame {
 
         jButton5.setBackground(new java.awt.Color(26, 87, 82));
         jButton5.setForeground(new java.awt.Color(255, 255, 255));
-        jButton5.setText("Gerar Observação");
+        jButton5.setText("Observações");
         jButton5.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton5ActionPerformed(evt);
@@ -256,38 +258,39 @@ public class TelaTurmas extends javax.swing.JFrame {
             return;
         }
 
-        Util.tela(new TelaAplicarNotas((String) jTable1.getValueAt(jTable1.getSelectedRow(),0)),this,false);
+        Util.tela(new TelaAplicarNotas(alunoSelecionado),this,false);
     }//GEN-LAST:event_jButton3ActionPerformed
 
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
         // TODO add your handling code here:
         // status presença
         Date data = Util.getSQLDate();
-        int idTurma = db.getTurmaIDByName((String) jTable2.getValueAt(jTable2.getSelectedRow(), 0));
+        int idTurma = DBUtil.getTurmaIDByName((String) jTable2.getValueAt(jTable2.getSelectedRow(), 0));
         System.out.println("idTurmaSelecionada: " + idTurma);
         int selectedRow = jTable1.getSelectedRow();
         if (selectedRow != -1) {
-            idAlunoSelecionado = db.getAlunoByName((String) jTable1.getValueAt(selectedRow,0));
+            alunoSelecionado = turmaSelecionada.getAlunoByName((String) jTable1.getValueAt(selectedRow, 0));
+            idAlunoSelecionado = alunoSelecionado.getId();
             if (status.equals("Presente")) {
                 status = "Ausente";
-                if(db.checkChamadaSQL(idAlunoSelecionado,data,idTurma)) {
-                    db.updateChamada(idAlunoSelecionado, data, idTurma, status);
+                if(DBUtil.checkChamadaSQL(idAlunoSelecionado,data,idTurma)) {
+                    DBUtil.updateChamada(idAlunoSelecionado, data, idTurma, status);
                 } else {
-                    db.chamadaSQL(idAlunoSelecionado, data, idTurma, status);
+                    DBUtil.chamadaSQL(idAlunoSelecionado, data, idTurma, status);
                 }
             } else if (status.equals("Ausente")) {
                 status = "justificada";
-                if(db.checkChamadaSQL(idAlunoSelecionado,data,idTurma)) {
-                    db.updateChamada(idAlunoSelecionado, data, idTurma, status);
+                if(DBUtil.checkChamadaSQL(idAlunoSelecionado,data,idTurma)) {
+                    DBUtil.updateChamada(idAlunoSelecionado, data, idTurma, status);
                 } else {
-                    db.chamadaSQL(idAlunoSelecionado, data, idTurma, status);
+                    DBUtil.chamadaSQL(idAlunoSelecionado, data, idTurma, status);
                 }
             } else if (status.equals("justificada")) {
                 status = "Presente";
-                if(db.checkChamadaSQL(idAlunoSelecionado,Util.getSQLDate(),idTurma)) {
-                    db.updateChamada(idAlunoSelecionado, Util.getSQLDate(), idTurma, status);
+                if(DBUtil.checkChamadaSQL(idAlunoSelecionado,Util.getSQLDate(),idTurma)) {
+                    DBUtil.updateChamada(idAlunoSelecionado, Util.getSQLDate(), idTurma, status);
                 } else {
-                    db.chamadaSQL(idAlunoSelecionado, Util.getSQLDate(), idTurma, status);
+                    DBUtil.chamadaSQL(idAlunoSelecionado, Util.getSQLDate(), idTurma, status);
                 }
             }
             jTable1.setValueAt(status, selectedRow, 1);
@@ -306,7 +309,7 @@ public class TelaTurmas extends javax.swing.JFrame {
             return;
         }
 
-        Util.tela(new TelaObservacao((String) jTable1.getValueAt(jTable1.getSelectedRow(),0)),this);
+        Util.tela(new TelaObservacao(alunoSelecionado),this);
     }//GEN-LAST:event_jButton5ActionPerformed
 
     private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
@@ -324,7 +327,7 @@ public class TelaTurmas extends javax.swing.JFrame {
             return;
         }
 
-        Util.tela(new TelaHistorico((String) jTable1.getValueAt(jTable1.getSelectedRow(),0)),this);
+        Util.tela(new TelaHistorico(alunoSelecionado),this);
     }//GEN-LAST:event_jButton7ActionPerformed
 
     /**

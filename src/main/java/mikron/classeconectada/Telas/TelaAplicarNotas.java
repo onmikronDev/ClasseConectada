@@ -4,6 +4,9 @@
  */
 package mikron.classeconectada.Telas;
 
+
+import mikron.classeconectada.System.Notas;
+import mikron.classeconectada.User.Aluno;
 import mikron.classeconectada.db.DBUtil;
 
 import javax.swing.*;
@@ -18,15 +21,19 @@ public class TelaAplicarNotas extends javax.swing.JFrame {
      * Creates new form TelaAplicarNotas
      */
 
-    DBUtil db;
     int idAluno;
-    String aluno;
-    public TelaAplicarNotas(String aluno) {
+    Aluno aluno;
+    public TelaAplicarNotas(Aluno aluno) {
         this.aluno = aluno;
         initComponents();
-        db = new DBUtil();
-        System.out.println("Aluno: " + this.aluno);
-        idAluno = db.getAlunoByName(aluno);
+        System.out.println("Aluno: " + this.aluno.getNome());
+        jLabel1.setText("Aluno: " + this.aluno.getNome());
+        idAluno = aluno.getId();
+        jComboBox1.removeAllItems();
+
+        for(String materia : DBUtil.listarDisciplina()) {
+            jComboBox1.addItem(materia);
+        }
     }
 
     /**
@@ -178,11 +185,8 @@ public class TelaAplicarNotas extends javax.swing.JFrame {
             return;
         }
 
-        if(!jTextField2.getText().matches("[0-9]+")) {
-            JOptionPane.showMessageDialog(this, "Nota deve ser um número!", "Erro", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-        if(Integer.parseInt(jTextField2.getText()) < 0 || Integer.parseInt(jTextField2.getText()) > 10) {
+
+        if(Double.parseDouble(jTextField2.getText()) < 0 || Double.parseDouble(jTextField2.getText()) > 10) {
             JOptionPane.showMessageDialog(this, "Nota deve ser entre 0 e 10!", "Erro", JOptionPane.ERROR_MESSAGE);
             return;
         }
@@ -191,8 +195,10 @@ public class TelaAplicarNotas extends javax.swing.JFrame {
         String nota = jTextField2.getText();
         String descricao = jTextArea1.getText();
 
+        Notas notaObj = new Notas (aluno,Double.parseDouble(nota), materia, descricao);
+
         try{
-            db.aplicarNota(idAluno, materia, nota, descricao);
+            notaObj.aplicarNota();
             JOptionPane.showMessageDialog(this, "Nota aplicada com sucesso!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
             this.dispose();
         } catch (Exception e) {
@@ -208,6 +214,7 @@ public class TelaAplicarNotas extends javax.swing.JFrame {
 
     private void jComboBox1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox1ActionPerformed
         // TODO add your handling code here:
+
     }//GEN-LAST:event_jComboBox1ActionPerformed
 
     /**
@@ -240,7 +247,7 @@ public class TelaAplicarNotas extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new TelaAplicarNotas("").setVisible(true);
+                new TelaAplicarNotas(null).setVisible(true);
             }
         });
     }

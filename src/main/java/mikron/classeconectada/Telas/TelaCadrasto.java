@@ -18,12 +18,29 @@ public class TelaCadrasto extends javax.swing.JFrame {
     /**
      * Creates new form TelaCadrasto2
      */
-    DBUtil db;
     String tipoUser;
     public TelaCadrasto(String tipoUser) {
         this.tipoUser = tipoUser;
         initComponents();
-        db = new DBUtil();
+
+
+        jTextField4.setText("Apenas para alunos");
+        jTextField5.setText("Apenas para alunos");
+        jTextField8.setText("Apenas para professores");
+        jTextField4.setEnabled(false);
+        jTextField5.setEnabled(false);
+        jTextField8.setEnabled(false);
+
+        if (tipoUser.equalsIgnoreCase("aluno")) {
+            jTextField4.setText("");
+            jTextField5.setText("");
+            jTextField4.setEnabled(true);
+            jTextField5.setEnabled(true);
+        } else if (tipoUser.equalsIgnoreCase("professor")) {
+            jTextField8.setText("");
+            jTextField8.setEnabled(true);
+        }
+
     }
 
     /**
@@ -340,6 +357,7 @@ public class TelaCadrasto extends javax.swing.JFrame {
         String formacao = jTextField8.getText();
 
 
+
         if (nome.isEmpty() || email.isEmpty() || endereco.isEmpty() || telefone.isEmpty() || cpf.isEmpty()) {
             JOptionPane.showMessageDialog(null, "Preencha todos os campos obrigatórios!");
             return;
@@ -355,12 +373,21 @@ public class TelaCadrasto extends javax.swing.JFrame {
             return;
         }
 
-        int id = db.cadrastoUser(nome, email, cpf,cpf,endereco,telefone,observacao,tipoUser);
+        int id = DBUtil.cadrastoUser(nome, email, cpf,cpf,endereco,telefone,observacao,tipoUser);
 
         if (tipoUser.equalsIgnoreCase("professor")) {
-            db.cadrastarProfessor(id, formacao);
+            DBUtil.cadrastarProfessor(id, formacao);
+            String x = JOptionPane.showInputDialog(null, "Digite o id da turma: ");
+            DBUtil.cadrastarProfessorTurma(id, Integer.parseInt(x));
+
         } else if (tipoUser.equalsIgnoreCase("aluno")) {
-            db.cadrastarAluno(id, pai, mae,Integer.parseInt(JOptionPane.showInputDialog("Digite o id da turma")));
+            jTextField4.setText("");
+            jTextField5.setText("");
+            jTextField4.setEnabled(true);
+            jTextField5.setEnabled(true);
+
+            DBUtil.cadrastarAluno(id, pai, mae,Integer.parseInt(JOptionPane.showInputDialog("Digite o id da turma")));
+
         }
 
         JOptionPane.showMessageDialog(null, "Cadastrado com sucesso!");

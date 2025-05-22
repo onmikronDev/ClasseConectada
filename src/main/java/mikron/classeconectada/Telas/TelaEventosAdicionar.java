@@ -4,7 +4,15 @@
  */
 package mikron.classeconectada.Telas;
 
+import mikron.classeconectada.System.Calendario;
+import mikron.classeconectada.System.Turma;
+import mikron.classeconectada.System.Util;
+import mikron.classeconectada.db.DBUtil;
+
 import javax.swing.*;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  *
@@ -15,8 +23,31 @@ public class TelaEventosAdicionar extends javax.swing.JFrame {
     /**
      * Creates new form TelaEventosOpcao
      */
+    Calendario calendario;
+    public TelaEventosAdicionar(Calendario calendario) {
+        this.calendario = calendario;
+        initComponents();
+
+
+        SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
+        jTextField1.setText(calendario.getEvento());
+        jTextField3.setText(sdf.format(calendario.getData()));
+        jTextArea1.setText(calendario.getDescricao());
+
+        jComboBox1.removeAllItems();
+        for (Turma turma : DBUtil.listarTurmasSQL()) {
+            jComboBox1.addItem(turma.getNome());
+        }
+
+    }
+
     public TelaEventosAdicionar() {
         initComponents();
+        jComboBox1.removeAllItems();
+        for (Turma turma : DBUtil.listarTurmasSQL()) {
+            jComboBox1.addItem(turma.getNome());
+        }
+
     }
 
     /**
@@ -189,11 +220,25 @@ public class TelaEventosAdicionar extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(this, "Preencha todos os campos!", "Erro", JOptionPane.ERROR_MESSAGE);
             return;
         }
-        String professor = jTextField1.getText();
-        String evento = jTextField3.getText();
+        String evento = jTextField1.getText();
         String descricao = jTextArea1.getText();
-        String turma = (String) jComboBox1.getSelectedItem();
-
+        SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
+        Date date;
+        try{
+            date = sdf.parse(jTextField3.getText());
+        } catch (ParseException e) {
+            JOptionPane.showMessageDialog(this, "Data inválida!", "Erro", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        if(calendario != null){
+            calendario.editarEvento(date,evento,descricao);
+        } else {
+            String turmaNome = (String) jComboBox1.getSelectedItem();
+            Turma turma = DBUtil.getTurmaByName(turmaNome);
+            calendario = new Calendario(0,date,evento,turma,descricao);
+            DBUtil.adicionarEvento(calendario);
+            Util.tela(new TelasEventos(), this);
+        }
     }//GEN-LAST:event_jButton7ActionPerformed
 
     private void jTextField3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField3ActionPerformed

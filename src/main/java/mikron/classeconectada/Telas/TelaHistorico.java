@@ -4,9 +4,10 @@
  */
 package mikron.classeconectada.Telas;
 
+import mikron.classeconectada.System.Notas;
 import mikron.classeconectada.System.Util;
+import mikron.classeconectada.User.Aluno;
 import mikron.classeconectada.db.DBUtil;
-
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 
@@ -20,15 +21,14 @@ public class TelaHistorico extends javax.swing.JFrame {
      * Creates new form TelaHistorico
      */
 
-    DBUtil db;
-    private String aluno;
+    private Aluno aluno;
     private int alunoID;
-    public TelaHistorico(String aluno) {
+    private Notas nota;
+    public TelaHistorico(Aluno aluno) {
         initComponents();
-        db = new DBUtil();
         this.aluno = aluno;
         System.out.println("historico: " + aluno);
-        alunoID = db.getAlunoByName(aluno);
+        alunoID = aluno.getId();
         // TODO add your handling code here:
 
 
@@ -60,12 +60,20 @@ public class TelaHistorico extends javax.swing.JFrame {
 
                     DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
                     model.setRowCount(0);
-                    db.listarNotasNaTabela(jTable1, alunoID, (String) jTable2.getValueAt(selectedRow, 0));
+                    for(Notas nota : DBUtil.listarNotas(aluno)) {
+                        if (nota.getDisciplina().equals(jTable2.getValueAt(selectedRow, 0))) {
+                            System.out.println("Nota: " + nota.getNota());
+                            System.out.println("Data: " + nota.getData());
+                            this.nota = nota;
+                            model.addRow(new Object[]{nota.getId(), nota.getNota(), nota.getData()});
+                        }
+
+                    }
                 }
             }
         });
 
-        db.listarDisciplinaNaTabela(jTable2);
+        DBUtil.listarDisciplicasNaTabela(jTable2);
 
     }
 
@@ -233,12 +241,12 @@ public class TelaHistorico extends javax.swing.JFrame {
         // TODO add your handling code here:
         // editar
         int selectedRow = jTable1.getSelectedRow();
-        String nota;
+        String notaString = "";
         if (selectedRow != -1) {
             try {
-                nota = JOptionPane.showInputDialog(this, "Digite a nova nota (Apenas numero):");
-                Integer.parseInt(nota);
-                if (nota.isEmpty()) {
+                notaString = JOptionPane.showInputDialog(this, "Digite a nova nota (Apenas numero):");
+                Double.parseDouble(notaString);
+                if (notaString.isEmpty()) {
                     JOptionPane.showMessageDialog(this, "Nota inválida. Por favor, insira um número.");
                     return;
                 }
@@ -250,12 +258,12 @@ public class TelaHistorico extends javax.swing.JFrame {
 
 
 
-            db.editarNotas(Integer.parseInt((String) jTable1.getValueAt(selectedRow,0)), nota, conteudo);
+            nota.editarNota(Double.parseDouble(notaString), conteudo);
 
 
             JOptionPane.showMessageDialog(this, "Nota editada com sucesso.");
             DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
-            model.setValueAt(nota, selectedRow, 1);
+            model.setValueAt(nota.getNota(), selectedRow, 1);
         } else {
             JOptionPane.showMessageDialog(this, "Selecione uma disciplina para editar.");
         }
@@ -278,8 +286,7 @@ public class TelaHistorico extends javax.swing.JFrame {
         // visualizar
         int selectedRow = jTable1.getSelectedRow();
         if (selectedRow != -1) {
-            String id = (String) jTable1.getValueAt(selectedRow, 0);
-            String conteudo = db.getNotaDescricaoByID(Integer.parseInt(id));
+            String conteudo = nota.getDescricao();
             JOptionPane.showMessageDialog(this, "Conteudo: " + conteudo);
         } else {
             JOptionPane.showMessageDialog(this, "Selecione uma disciplina para visualizar.");
@@ -291,8 +298,7 @@ public class TelaHistorico extends javax.swing.JFrame {
         // deletar
         int selectedRow = jTable1.getSelectedRow();
         if (selectedRow != -1) {
-            String id = (String) jTable1.getValueAt(selectedRow, 0);
-            db.deletarNota(Integer.parseInt(id));
+            DBUtil.deletarNota(nota.getId());
             JOptionPane.showMessageDialog(this, "Nota deletada com sucesso.");
             DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
             model.removeRow(selectedRow);
@@ -331,7 +337,7 @@ public class TelaHistorico extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new TelaHistorico("").setVisible(true);
+                new TelaHistorico(null).setVisible(true);
             }
         });
     }

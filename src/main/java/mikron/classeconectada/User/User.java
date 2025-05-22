@@ -8,16 +8,22 @@ public abstract class User {
 
 	private String CPF;
 
-	private String Senha;
-
 	private String Email;
 
-	public User(int id, String senha, String CPF, String nome, String email) {
+	private String Senha;
+
+
+	public User(int id, String nome) {
 		this.id = id;
+		Nome = nome;
+	}
+
+	public User(int id, String email, String senha, String CPF, String nome) {
+		this.id = id;
+		Email = email;
 		Senha = senha;
 		this.CPF = CPF;
 		Nome = nome;
-		Email = email;
 	}
 
 	public void visualizacaoDePerfil() {

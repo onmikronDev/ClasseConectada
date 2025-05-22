@@ -1,7 +1,6 @@
 package mikron.classeconectada.db;
 
-import com.mysql.cj.protocol.Resultset;
-import mikron.classeconectada.System.Turma;
+import mikron.classeconectada.System.*;
 import mikron.classeconectada.User.Aluno;
 
 import javax.swing.*;
@@ -10,24 +9,22 @@ import javax.swing.table.TableRowSorter;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class DBUtil {
 
-    Connection conn;
-    Statement st;
+    static Connection conn;
+    static Statement st;
 
 
     // URL do banco de dados via localhost
-    private String url = "jdbc:mysql://localhost:3306/classeconectada";
-    private String user = "root"; //
-    private String password = "kekw"; //
+    private static String url = "jdbc:mysql://localhost:3306/classeconectada";
+    private static String user = "root"; //
+    private static String password = "kekw"; //
 
 
-    public DBUtil() {
-        conexaoGeral();
-    }
-
-    public void sendQuery(String query){
+    // ------------------------------------------------------------------------
+    public static void sendQuery(String query){
         try {
             st.executeUpdate(query);
         } catch (SQLException ex) {
@@ -35,7 +32,7 @@ public class DBUtil {
         }
     }
 
-    public boolean conectarStatment(){
+    public static boolean conectarStatment(){
         try {
             if(conn == null) return false;
             st = conn.createStatement();
@@ -47,7 +44,7 @@ public class DBUtil {
         }
     }
 
-    public boolean conectarDB(){
+    public static boolean conectarDB(){
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
             conn = DriverManager.getConnection(url,user,password);
@@ -59,7 +56,7 @@ public class DBUtil {
         }
     }
 
-    public void desconectar(){
+    public static void desconectar(){
         try {
             conn.close();
             st.close();
@@ -70,7 +67,7 @@ public class DBUtil {
         }
     }
 
-    public void conexaoGeral(){
+    public static void conexaoGeral(){
         if(conectarDB() && conectarStatment()){
             System.out.println("Conexão Geral realizada com sucesso");
         }else{
@@ -78,40 +75,42 @@ public class DBUtil {
         }
     }
 
-
-    public void listarEventosTabelas(JTable tabelas) {
-        String query = "SELECT * FROM eventos";
-        try (PreparedStatement ps = conn.prepareStatement(query)) {
-            ResultSet rs = ps.executeQuery();
-            DefaultTableModel tabelaLista = (DefaultTableModel) tabelas.getModel();
-            tabelas.setRowSorter(new TableRowSorter<>(tabelaLista));
-            while (rs.next()) {
-                Object[] obj = new Object[]{
-                        rs.getString("evento"),
-                        rs.getString("data"),
-                };
-                tabelaLista.addRow(obj);
-            }
-        } catch (SQLException ex) {
-            System.out.println("Erro ao executar a query " + ex.getMessage());
+// ------------------------------------------------------------------------
+public static List<Calendario> listarEventos() {
+    List<Calendario> eventos = new ArrayList<>();
+    String query = "SELECT * FROM eventos";
+    try (PreparedStatement ps = conn.prepareStatement(query);
+         ResultSet rs = ps.executeQuery()) {
+        while (rs.next()) {
+            int id = rs.getInt("id");
+            Date data = rs.getDate("data");
+            String evento = rs.getString("evento");
+            String descricao = rs.getString("descricao");
+            Turma turma = Turma.getTurmaByID(rs.getInt("id_turma"));
+            Calendario obj = new Calendario(id, data, evento, turma,descricao);
+            eventos.add(obj);
         }
+    } catch (SQLException ex) {
+        System.out.println("Erro ao executar a query " + ex.getMessage());
     }
+    return eventos;
+}
 
-    public List<String> listarDisciplicasNaTabela(JTable tabelas) {
-        List<String> listakekw = listarDisciplina();
-        DefaultTableModel tabelaLista = (DefaultTableModel) tabelas.getModel();
-        tabelas.setRowSorter(new TableRowSorter(tabelaLista));
-        for(String disciplina : listakekw){
+    public static ArrayList<String> listarDisciplicasNaTabela(JTable tabelas) {
+        ArrayList<String> ArrayListakekw = listarDisciplina();
+        DefaultTableModel tabelaArrayLista = (DefaultTableModel) tabelas.getModel();
+        tabelas.setRowSorter(new TableRowSorter(tabelaArrayLista));
+        for(String disciplina : ArrayListakekw){
             Object[] obj = new Object[]{
                     disciplina
             };
-            tabelaLista.addRow(obj);
+            tabelaArrayLista.addRow(obj);
         }
-        return listakekw;
+        return ArrayListakekw;
     }
 
 
-    public int getUserIDByName(String name){
+    public static int getUserIDByName(String name){
         String query = "SELECT id FROM user WHERE nome = ?";
         try (PreparedStatement ps = conn.prepareStatement(query)) {
             ps.setString(1, name);
@@ -125,46 +124,75 @@ public class DBUtil {
         return -1;
     }
 
-    public void listarTipoUserNaTabela(JTable tabelas) {
+    public static void listarTipoUserNaTabela(JTable tabelas) {
         String query = "SELECT tipo FROM user";
         try (PreparedStatement ps = conn.prepareStatement(query)) {
             ResultSet rs = ps.executeQuery();
-            DefaultTableModel tabelaLista = (DefaultTableModel) tabelas.getModel();
-            tabelas.setRowSorter(new TableRowSorter(tabelaLista));
+            DefaultTableModel tabelaArrayLista = (DefaultTableModel) tabelas.getModel();
+            tabelas.setRowSorter(new TableRowSorter(tabelaArrayLista));
             while (rs.next()) {
                 Object[] obj = new Object[]{
                         rs.getString("tipo")
                 };
-                tabelaLista.addRow(obj);
+                tabelaArrayLista.addRow(obj);
             }
         } catch (SQLException ex) {
             System.out.println("Erro ao executar a query " + ex.getMessage());
         }
     }
 
-    public int getAlunoByName(String name){
-        String query = "SELECT * FROM user WHERE nome = ?";
+
+
+    public static String[] getAlunoDataByID(int id){
+        String query = "SELECT * FROM aluno WHERE id = ?";
         try (PreparedStatement ps = conn.prepareStatement(query)) {
-            ps.setString(1, name);
+            ps.setInt(1, id);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
-                int id = rs.getInt("id");
-                String cpf = rs.getString("cpf");
-                String email = rs.getString("email");
-                Aluno aluno = new Aluno(id, name, cpf, email);
-                return aluno.getId();
-            } else {
-                System.out.println("Aluno não encontrado");
-                return -1;
+                String pai = rs.getString("pai");
+                String mae = rs.getString("mae");
+                return new String[]{pai,mae};
             }
         } catch (SQLException ex) {
             System.out.println("Erro ao executar a query " + ex.getMessage());
         }
-        return -1;
+        return null;
+    }
+        public static Aluno getAlunoByName(String name) {
+            String query = "SELECT a.id, u.nome, a.turma_id FROM aluno a INNER JOIN user u ON a.id = u.id WHERE u.nome = ?";
+            try (PreparedStatement ps = conn.prepareStatement(query)) {
+                ps.setString(1, name);
+                ResultSet rs = ps.executeQuery();
+                if (rs.next()) {
+                    int id = rs.getInt("id");
+                    String nome = rs.getString("nome");
+                    int turmaId = rs.getInt("turma_id");
+                    return new Aluno(id, nome, turmaId);
+                }
+            } catch (SQLException ex) {
+                System.out.println("Erro ao executar a query " + ex.getMessage());
+            }
+            return null;
+        }
+
+
+    public static ArrayList<Turma> listarTurmasTabela(JTable tabelas) {
+        ArrayList<Turma> ArrayListakekw = listarTurmasSQL();
+        DefaultTableModel tabelaArrayLista = (DefaultTableModel) tabelas.getModel();
+        tabelas.setRowSorter(new TableRowSorter(tabelaArrayLista));
+        for(Turma turma : ArrayListakekw){
+            Object[] obj = new Object[]{
+                    turma.getNome(),
+                    turma.getAno(),
+                    turma.getId()
+            };
+            tabelaArrayLista.addRow(obj);
+        }
+        return ArrayListakekw;
     }
 
-    public List<Turma> listarTurmasSQL() {
-        List<Turma> turmas = new ArrayList<>();
+    public static ArrayList<Turma> listarTurmasSQL() {
+        ArrayList<Turma> turmas = new ArrayList<>();
         String query = "SELECT * FROM turmas";
         try (PreparedStatement ps = conn.prepareStatement(query)) {
             ResultSet rs = ps.executeQuery();
@@ -181,8 +209,8 @@ public class DBUtil {
         return turmas;
     }
 
-    public List<String> listarDisciplina() {
-        List<String> disciplina = new ArrayList<>();
+    public static ArrayList<String> listarDisciplina() {
+        ArrayList<String> disciplina = new ArrayList<>();
         String query = "SELECT * FROM disciplina";
         try (PreparedStatement ps = conn.prepareStatement(query)) {
             ResultSet rs = ps.executeQuery();
@@ -198,72 +226,35 @@ public class DBUtil {
     }
 
 
-
-    public void listarDisciplinaNaTabela(JTable tabelas) {
-        List<String> listakekw = listarDisciplina();
-        DefaultTableModel tabelaLista = (DefaultTableModel) tabelas.getModel();
-        tabelas.setRowSorter(new TableRowSorter(tabelaLista));
-        for(String disciplina2 : listakekw){
-            Object[] obj = new Object[]{
-                    disciplina2
-            };
-            tabelaLista.addRow(obj);
-        }
-    }
-
-    public List<Aluno> getListAlunosAll(){
-        List<Aluno> alunos = new ArrayList<>();
-        String query = "SELECT * FROM user WHERE tipo = 'aluno'";
-
-        try {
-            PreparedStatement ps = conn.prepareStatement(query);
-            ResultSet rs = ps.executeQuery();
-            while (rs.next()) {
-                int id = rs.getInt("id");
-                String nome = rs.getString("nome");
-                String cpf = rs.getString("cpf");
-                String email = rs.getString("email");
-                Aluno aluno = new Aluno(id, nome, cpf, email);
-                alunos.add(aluno);
-            }
-        } catch (SQLException ex) {
-            System.out.println("Erro ao executar a query " + ex.getMessage());
-        }
-
-        return alunos;
-    }
-
-    public List<Aluno> listarAlunosSQL(int turmaID) {
-        List<Aluno> alunos = new ArrayList<>();
-        String query = "SELECT * FROM aluno WHERE turma_id = ?";
+    public static ArrayList<Aluno> listarAlunosSQL(int turmaID) {
+        ArrayList<Aluno> alunos = new ArrayList<>();
+        String query = "SELECT * FROM aluno where turma_id = ?";
         try (PreparedStatement ps = conn.prepareStatement(query)) {
             ps.setInt(1, turmaID);
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 int id = rs.getInt("id");
-
-                String query2 = "SELECT * FROM user WHERE id = ?";
-                try (PreparedStatement ps2 = conn.prepareStatement(query2)) {
+                try {
+                    String query2 = "SELECT nome FROM user WHERE id = ?";
+                    PreparedStatement ps2 = conn.prepareStatement(query2);
                     ps2.setInt(1, id);
                     ResultSet rs2 = ps2.executeQuery();
                     if (rs2.next()) {
                         String nome = rs2.getString("nome");
-                        String cpf = rs2.getString("cpf");
-                        String email = rs2.getString("email");
-                        Aluno aluno = new Aluno(id, nome, cpf, email);
+                        Aluno aluno = new Aluno(id, nome, turmaID);
                         alunos.add(aluno);
                     }
                 } catch (SQLException ex) {
-                    System.out.println("Erro ao executar a query " + ex.getMessage());
+                    System.out.println("Erro ao executar a query ripo" + ex.getMessage());
                 }
             }
         } catch (SQLException ex) {
-            System.out.println("Erro ao executar a query " + ex.getMessage());
+            System.out.println("Erro ao executar a query ACHEIIII " + ex.getMessage());
         }
         return alunos;
     }
 
-    public void cadrastoUser(String nome, String email, String senha, String cpf,String endereco,String Telefone,String observacao, String tipo, String pai, String mae, String formacao) {
+    public static void cadrastoUser(String nome, String email, String senha, String cpf,String endereco,String Telefone,String observacao, String tipo, String pai, String mae, String formacao) {
         String query = "INSERT INTO user (nome, email, senha, cpf, endereco, telefone,observacao,tipo) VALUES (?, ?, ?, ?, ?, ?, ?,?)";
         try (PreparedStatement ps = conn.prepareStatement(query)) {
 
@@ -282,7 +273,7 @@ public class DBUtil {
         }
     }
 
-    public int cadrastoUser(String nome, String email, String senha, String cpf,String endereco,String Telefone,String observacao, String tipo) {
+    public static int  cadrastoUser(String nome, String email, String senha, String cpf,String endereco,String Telefone,String observacao, String tipo) {
         String query = "INSERT INTO user (nome, email, senha, cpf, endereco, telefone,observacao,tipo) VALUES (?, ?, ?, ?, ?, ?, ?,?)";
         try (PreparedStatement ps = conn.prepareStatement(query)) {
             ps.setString(1, nome);
@@ -310,7 +301,7 @@ public class DBUtil {
         return -1;
     }
 
-    public void cadrastarAluno(int id, String pai, String mae, int turmaID) {
+    public static void cadrastarAluno(int id, String pai, String mae, int turmaID) {
         String query = "INSERT INTO aluno (id,pai,mae,turma_id) VALUES (?, ?, ?, ?)";
         try (PreparedStatement ps = conn.prepareStatement(query)) {
             ps.setInt(1, id);
@@ -322,7 +313,7 @@ public class DBUtil {
             System.out.println("Erro ao executar a query " + ex.getMessage());
         }
     }
-    public void cadrastarProfessor(int id, String formacao) {
+    public static void cadrastarProfessor(int id, String formacao) {
         String query = "INSERT INTO professor (id, formação) VALUES (?, ?)";
         try (PreparedStatement ps = conn.prepareStatement(query)) {
             ps.setInt(1, id);
@@ -333,7 +324,23 @@ public class DBUtil {
         }
     }
 
-    public int getTurmaIDByName(String name){
+    public static Turma getTurma(int id) {
+        String query = "SELECT * FROM turmas WHERE id = ?";
+        try (PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setInt(1, id);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                String nome = rs.getString("nome");
+                int ano = rs.getInt("ano");
+                return new Turma(id, nome, ano);
+            }
+        } catch (SQLException ex) {
+            System.out.println("Erro ao executar a query esta aq" + ex.getMessage());
+        }
+        return null;
+    }
+
+    public static int getTurmaIDByName(String name){
         String query = "SELECT id FROM turmas WHERE nome = ?";
         try (PreparedStatement ps = conn.prepareStatement(query)) {
             ps.setString(1, name);
@@ -342,12 +349,12 @@ public class DBUtil {
                 return rs.getInt("id");
             }
         } catch (SQLException ex) {
-            System.out.println("Erro ao executar a query " + ex.getMessage());
+            System.out.println("Erro ao executar a query Turma HERE" + ex.getMessage());
         }
         return -1;
     }
 
-    public String getTurmaNameByID(int id){
+    public static String getTurmaNameByID(int id){
         String query = "SELECT nome FROM turmas WHERE id = ?";
         try (PreparedStatement ps = conn.prepareStatement(query)) {
             ps.setInt(1, id);
@@ -361,7 +368,7 @@ public class DBUtil {
         return null;
     }
 
-    public String getTurmaNameByAlunoName(String alunoName){
+    public static String getTurmaNameByAlunoName(String alunoName){
         String query = "SELECT turmas.nome FROM turmas INNER JOIN aluno ON turmas.id = aluno.turma_id INNER JOIN user ON aluno.id = user.id WHERE user.nome = ?";
         try (PreparedStatement ps = conn.prepareStatement(query)) {
             ps.setString(1, alunoName);
@@ -376,26 +383,29 @@ public class DBUtil {
     }
 
 
-    public void listasTurma(JTable tabelas) {
-        List<Turma> listakekw = listarTurmasSQL();
-        DefaultTableModel tabelaLista = (DefaultTableModel) tabelas.getModel();
-        tabelas.setRowSorter(new TableRowSorter(tabelaLista));
-        for(Turma turma : listakekw){
+    public static ArrayList<Turma> ArrayListasTurma(JTable tabelas) {
+        ArrayList<Turma> ArrayListakekw = listarTurmasSQL();
+        DefaultTableModel tabelaArrayLista = (DefaultTableModel) tabelas.getModel();
+        tabelas.setRowSorter(new TableRowSorter(tabelaArrayLista));
+        for(Turma turma : ArrayListakekw){
             Object[] obj = new Object[]{
-                    turma.getSala(),
+                    turma.getNome(),
+                    turma.getAno(),
+                    turma.getId()
             };
-            tabelaLista.addRow(obj);
+            tabelaArrayLista.addRow(obj);
         }
+        return ArrayListakekw;
     }
 
 
-    public void listarUserByProfissao(JTable tabelas,String profissao) {
+    public static void listarUserByProfissao(JTable tabelas,String profissao) {
         String query = "SELECT * FROM user WHERE tipo = ?";
         try (PreparedStatement ps = conn.prepareStatement(query)) {
             ps.setString(1, profissao);
             ResultSet rs = ps.executeQuery();
-            DefaultTableModel tabelaLista = (DefaultTableModel) tabelas.getModel();
-            tabelas.setRowSorter(new TableRowSorter(tabelaLista));
+            DefaultTableModel tabelaArrayLista = (DefaultTableModel) tabelas.getModel();
+            tabelas.setRowSorter(new TableRowSorter(tabelaArrayLista));
             while (rs.next()) {
                 Object[] obj = new Object[]{
                         rs.getString("nome"),
@@ -405,14 +415,14 @@ public class DBUtil {
                         rs.getString("telefone"),
                         rs.getString("observacao")
                 };
-                tabelaLista.addRow(obj);
+                tabelaArrayLista.addRow(obj);
             }
         } catch (SQLException ex) {
             System.out.println("Erro ao executar a query " + ex.getMessage());
         }
     }
 
-    public String[] getUserDataByID(int id){
+    public static String[] getUserDataByID(int id){
         String query = "SELECT * FROM user WHERE id = ?";
         try (PreparedStatement ps = conn.prepareStatement(query)) {
             ps.setInt(1, id);
@@ -432,24 +442,34 @@ public class DBUtil {
         return null;
     }
 
-    public String[] getAlunoDataByID(int id){
+    public static Aluno getAlunoByID(int id){
         String query = "SELECT * FROM aluno WHERE id = ?";
         try (PreparedStatement ps = conn.prepareStatement(query)) {
             ps.setInt(1, id);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
-                String pai = rs.getString("pai");
-                String mae = rs.getString("mae");
-                String turma_id = rs.getString("turma_id");
-                return new String[]{pai, mae, turma_id};
+                int alunoID = rs.getInt("id");
+                int turmaid = rs.getInt("turma_id");
+                try {
+                    String query2 = "SELECT nome FROM user WHERE id = ?";
+                    PreparedStatement ps2 = conn.prepareStatement(query2);
+                    ps2.setInt(1, alunoID);
+                    ResultSet rs2 = ps2.executeQuery();
+                    if (rs2.next()) {
+                        String nome = rs2.getString("nome");
+                        return new Aluno(alunoID, nome, turmaid);
+                    }
+                }catch (SQLException ex) {
+                    System.out.println("Erro ao executar a query query2" + ex.getMessage());
+                }
             }
         } catch (SQLException ex) {
-            System.out.println("Erro ao executar a query " + ex.getMessage());
+            System.out.println("Erro ao executar a query getAlunoByID " + ex.getMessage());
         }
         return null;
     }
 
-    public String[] getProfessorDataByID(int id){
+    public static String[] getProfessorDataByID(int id){
         String query = "SELECT * FROM professor WHERE id = ?";
         try (PreparedStatement ps = conn.prepareStatement(query)) {
             ps.setInt(1, id);
@@ -464,19 +484,19 @@ public class DBUtil {
         return null;
     }
 
-    public void listarAlunosNaTabela(JTable tabelas) {
-        List<Aluno> listakekw = listarAlunosSQL(-1);
-        DefaultTableModel tabelaLista = (DefaultTableModel) tabelas.getModel();
-        tabelas.setRowSorter(new TableRowSorter(tabelaLista));
-        for(Aluno aluno : listakekw){
+    public static void listarAlunosNaTabela(JTable tabelas) {
+        ArrayList<Aluno> ArrayListakekw = listarAlunosSQL(-1);
+        DefaultTableModel tabelaArrayLista = (DefaultTableModel) tabelas.getModel();
+        tabelas.setRowSorter(new TableRowSorter(tabelaArrayLista));
+        for(Aluno aluno : ArrayListakekw){
             Object[] obj = new Object[]{
                     aluno.getNome()
             };
-            tabelaLista.addRow(obj);
+            tabelaArrayLista.addRow(obj);
         }
     }
 
-    public void chamadaSQL(int alunoID, Date data,int turmaID,String status) {
+    public static void chamadaSQL(int alunoID, Date data,int turmaID,String status) {
         String query = "INSERT INTO chamada (aluno_id,turma_id,data, status) VALUES (?, ?, ?, ?)";
         try (PreparedStatement ps = conn.prepareStatement(query)) {
             ps.setInt(1, alunoID);
@@ -490,7 +510,7 @@ public class DBUtil {
         }
     }
 
-    public boolean checkChamadaSQL(int alunoID, Date data,int turmaID) {
+    public static boolean checkChamadaSQL(int alunoID, Date data,int turmaID) {
         String query = "SELECT * FROM chamada WHERE aluno_id = ? AND data = ? AND turma_id = ?";
         try (PreparedStatement ps = conn.prepareStatement(query)) {
             ps.setInt(1, alunoID);
@@ -498,6 +518,7 @@ public class DBUtil {
             ps.setInt(3, turmaID);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
+                System.out.println("Chamada já registrada checkChamadaSQL");
                 return true;
             }
         } catch (SQLException ex) {
@@ -507,7 +528,7 @@ public class DBUtil {
     }
 
 
-    public void updateChamada(int alunoID, Date data,int turmaID,String status) {
+    public static void updateChamada(int alunoID, Date data,int turmaID,String status) {
         String query = "UPDATE chamada SET status = ? WHERE aluno_id = ? AND data = ? AND turma_id = ?";
         try (PreparedStatement ps = conn.prepareStatement(query)) {
             ps.setString(1, status);
@@ -515,6 +536,7 @@ public class DBUtil {
             ps.setDate(3, data);
             ps.setInt(4, turmaID);
             ps.executeUpdate();
+            System.out.println("VAlues? " + status + " " + alunoID + " " + data + " " + turmaID);
             System.out.println("Chamada atualizada com sucesso");
         } catch (SQLException ex) {
             System.out.println("Erro ao executar a query " + ex.getMessage());
@@ -522,7 +544,7 @@ public class DBUtil {
         }
     }
 
-    public String getChamadaStatus(int alunoID, Date data,int turmaID) {
+    public static String getChamadaStatus(int alunoID, Date data,int turmaID) {
         String query = "SELECT status FROM chamada WHERE aluno_id = ? AND data = ? AND turma_id = ?";
         try (PreparedStatement ps = conn.prepareStatement(query)) {
             ps.setInt(1, alunoID);
@@ -530,6 +552,7 @@ public class DBUtil {
             ps.setInt(3, turmaID);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
+                System.out.println("VAlues? " + alunoID + " " + data + " " + rs.getString("status"));
                 return rs.getString("status");
             }
         } catch (SQLException ex) {
@@ -538,7 +561,7 @@ public class DBUtil {
         return null;
     }
 
-    public void getStatusChamadaByAluno(String alunoName, Date data) {
+    public static void getStatusChamadaByAluno(String alunoName, Date data) {
         String query = "SELECT status FROM chamada WHERE aluno_id = (SELECT id FROM user WHERE nome = ?) AND data = ?";
         try (PreparedStatement ps = conn.prepareStatement(query)) {
             ps.setString(1, alunoName);
@@ -552,25 +575,24 @@ public class DBUtil {
         }
     }
 
-    public void listarAlunosNaTabela(JTable tabelas,String turma) {
+    public static ArrayList<Aluno> listarAlunosNaTabela(JTable tabelas, String turma) {
         if(turma == null){
             System.out.println("Turma não encontrada");
-            return;
+            return null;
         }
-
-        List<Aluno> listakekw = listarAlunosSQL(getTurmaIDByName(turma));
-        DefaultTableModel tabelaLista = (DefaultTableModel) tabelas.getModel();
-        tabelas.setRowSorter(new TableRowSorter(tabelaLista));
-        for(Aluno aluno : listakekw){
+        ArrayList<Aluno> ArrayListakekw = listarAlunosSQL(getTurmaIDByName(turma));
+        DefaultTableModel tabelaArrayLista = (DefaultTableModel) tabelas.getModel();
+        tabelas.setRowSorter(new TableRowSorter(tabelaArrayLista));
+        for(Aluno aluno : ArrayListakekw){
             Object[] obj = new Object[]{
                     aluno.getNome(),
-
             };
-            tabelaLista.addRow(obj);
+            tabelaArrayLista.addRow(obj);
         }
+        return ArrayListakekw;
     }
 
-    public String login(String login, String senha) {
+    public static String login(String login, String senha) {
         String query = "SELECT * FROM user WHERE email = ? AND senha = ?";
         try (PreparedStatement ps = conn.prepareStatement(query)) {
             ps.setString(1, login);
@@ -590,7 +612,7 @@ public class DBUtil {
         }
     }
 
-    public void aplicarNota(int idAluno, String materia, String nota, String descricao) {
+    public static void aplicarNota(int idAluno, String materia, String nota, String descricao) {
         String query = "INSERT INTO nota (aluno_id, disciplina, nota,data, descricao) VALUES (?, ?, ?, ?, ?)";
         try (PreparedStatement ps = conn.prepareStatement(query)) {
             ps.setInt(1, idAluno);
@@ -604,10 +626,10 @@ public class DBUtil {
         }
     }
 
-    public void editarNotas(int id, String nota, String descricao) {
+    public static void editarNotas(int id, double nota, String descricao) {
         String query = "UPDATE nota SET nota = ?, descricao = ? WHERE id = ?";
         try (PreparedStatement ps = conn.prepareStatement(query)) {
-            ps.setString(1, nota);
+            ps.setDouble(1, nota);
             ps.setString(2, descricao);
             ps.setInt(3, id);
             ps.executeUpdate();
@@ -617,7 +639,7 @@ public class DBUtil {
         }
     }
 
-    public void deletarNota(int id) {
+    public static void deletarNota(int id) {
         String query = "DELETE FROM nota WHERE id = ?";
         try (PreparedStatement ps = conn.prepareStatement(query)) {
             ps.setInt(1, id);
@@ -627,48 +649,136 @@ public class DBUtil {
         }
     }
 
+    public static List<Aluno> getListAlunos() {
+        List<Aluno> alunos = new ArrayList<>();
+        String query = "SELECT a.id, u.nome, a.turma_id FROM aluno a INNER JOIN user u ON a.id = u.id";
+        try (PreparedStatement ps = conn.prepareStatement(query)) {
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                int id = rs.getInt("id");
+                String nome = rs.getString("nome");
+                int turmaId = rs.getInt("turma_id");
+                Aluno aluno = new Aluno(id, nome, turmaId);
+                alunos.add(aluno);
+            }
+        } catch (SQLException ex) {
+            System.out.println("Erro ao executar a query " + ex.getMessage());
+        }
+        return alunos;
+    }
 
-    public void listarObservacaoNaTabela(JTable jTable1, int alunoID) {
+    public static void inserirRelatorio(int Alunoid, String conteudo) {
+        String query = "INSERT INTO relatorio (aluno_id, data, conteudo) VALUES (?, ?, ?)";
+        try (PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setInt(1, Alunoid);
+            ps.setDate(2, Util.getSQLDate());
+            ps.setString(3, conteudo);
+            ps.executeUpdate();
+        } catch (SQLException ex) {
+            System.out.println("Erro ao inserir o relatorio " + ex.getMessage());
+        }
+    }
+
+    public static void cadrastarProfessorTurma(int id, int idturma) {
+        String query = "INSERT INTO professor_turma (professor_id, turma_id) VALUES (?, ?)";
+        try (PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setInt(1, id);
+            ps.setInt(2, idturma);
+            ps.executeUpdate();
+        } catch (SQLException ex) {
+            System.out.println("Erro ao cadastrar o professor na turma " + ex.getMessage());
+        }
+    }
+
+    public static Relatorio getRelatorioByAlunoID(int id) {
+        String query = "SELECT * FROM relatorio WHERE aluno_id = ?";
+        try (PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setInt(1, id);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                int relatorioID = rs.getInt("id");
+                String conteudo = rs.getString("conteudo");
+                Date data = rs.getDate("data");
+                return new Relatorio(relatorioID, getAlunoByID(id), conteudo, data);
+            }
+        } catch (SQLException ex) {
+            System.out.println("Erro ao executar a query " + ex.getMessage());
+        }
+        return null;
+    }
+
+    public static void atualizarRelatorio(int id, String relatorio) {
+        String query = "UPDATE relatorio SET conteudo = ? WHERE aluno_id = ?";
+        try (PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setString(1, relatorio);
+            ps.setInt(2, id);
+            ps.executeUpdate();
+        } catch (SQLException ex) {
+            System.out.println("Erro ao atualizar o relatorio " + ex.getMessage());
+        }
+    }
+
+    public List<Observacao> listarObservacao(Aluno aluno) {
+        List<Observacao> observacoes = new ArrayList<>();
         String query = "SELECT * FROM observacao WHERE aluno_id = ?";
         try (PreparedStatement ps = conn.prepareStatement(query)) {
-            ps.setInt(1, alunoID);
+            ps.setInt(1, aluno.getId());
             ResultSet rs = ps.executeQuery();
-            DefaultTableModel tabelaLista = (DefaultTableModel) jTable1.getModel();
-            jTable1.setRowSorter(new TableRowSorter(tabelaLista));
+            while (rs.next()) {
+                int id = rs.getInt("id");
+                String conteudo = rs.getString("conteudo");
+                String data = rs.getString("data");
+                Observacao obj = new Observacao(id, conteudo, data, aluno);
+                observacoes.add(obj);
+            }
+        } catch (SQLException ex) {
+            System.out.println("Erro ao listar observações " + ex.getMessage());
+        }
+        return observacoes;
+    }
+
+
+    public static void listarObservacaoNaTabela(JTable jTable1, Aluno aluno) {
+        String query = "SELECT * FROM observacao WHERE aluno_id = ?";
+        try (PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setInt(1, aluno.getId());
+            ResultSet rs = ps.executeQuery();
+            DefaultTableModel tabelaArrayLista = (DefaultTableModel) jTable1.getModel();
+            jTable1.setRowSorter(new TableRowSorter(tabelaArrayLista));
             while (rs.next()) {
                 Object[] obj = new Object[]{
                         rs.getString("id"),
                         rs.getString("data"),
                 };
-                tabelaLista.addRow(obj);
+                tabelaArrayLista.addRow(obj);
             }
         } catch (SQLException ex) {
             System.out.println("Erro ao listar observações " + ex.getMessage());
         }
     }
 
-    public void editarObservacao(int id, String conteudo) {
+    public static void editarObservacao(Observacao obs) {
         String query = "UPDATE observacao SET conteudo = ? WHERE id = ?";
         try (PreparedStatement ps = conn.prepareStatement(query)) {
-            ps.setString(1, conteudo);
-            ps.setInt(2, id);
+            ps.setString(1, obs.getObservacao());
+            ps.setInt(2, obs.getId());
             ps.executeUpdate();
         } catch (SQLException ex) {
             System.out.println("Erro ao editar observação " + ex.getMessage());
         }
     }
 
-    public void deletarObservacao(int id) {
+    public static void deletarObservacao(Observacao obs) {
         String query = "DELETE FROM observacao WHERE id = ?";
         try (PreparedStatement ps = conn.prepareStatement(query)) {
-            ps.setInt(1, id);
+            ps.setInt(1, obs.getId());
             ps.executeUpdate();
         } catch (SQLException ex) {
             System.out.println("Erro ao deletar observação " + ex.getMessage());
         }
     }
 
-    public String getObservacaoByID(int id) {
+    public static String getObservacaoByID(int id) {
         String query = "SELECT * FROM observacao WHERE id = ?";
         try (PreparedStatement ps = conn.prepareStatement(query)) {
             ps.setInt(1, id);
@@ -682,28 +792,29 @@ public class DBUtil {
         return null;
     }
 
-    public void listarNotasNaTabela(JTable jTable1, int alunoID, String disciplina) {
-        String query = "SELECT * FROM nota WHERE aluno_id = ? AND disciplina = ?";
+    public static List<Notas> listarNotas(Aluno aluno) {
+        List<Notas> notas = new ArrayList<>();
+        String query = "SELECT * FROM nota WHERE aluno_id = ?";
         try (PreparedStatement ps = conn.prepareStatement(query)) {
-            ps.setInt(1, alunoID);
-            ps.setString(2, disciplina);
+            ps.setInt(1, aluno.getId());
             ResultSet rs = ps.executeQuery();
-            DefaultTableModel tabelaLista = (DefaultTableModel) jTable1.getModel();
-            jTable1.setRowSorter(new TableRowSorter(tabelaLista));
             while (rs.next()) {
-                Object[] obj = new Object[]{
-                        rs.getString("id"),
-                        rs.getString("nota"),
-                        rs.getString("data"),
-                };
-                tabelaLista.addRow(obj);
+                int id = rs.getInt("id");
+                double nota = rs.getDouble("nota");
+                String descricao = rs.getString("descricao");
+                String disciplina = rs.getString("disciplina");
+                Date data = rs.getDate("data");
+                Notas obj = new Notas(id, aluno, nota, disciplina, data, descricao);
+                notas.add(obj);
+
             }
         } catch (SQLException ex) {
             System.out.println("Erro ao listar notas " + ex.getMessage());
         }
+        return notas;
     }
 
-    public String getNotaDescricaoByID(int id) {
+    public static String getNotaDescricaoByID(int id) {
         String query = "SELECT * FROM nota WHERE id = ?";
         try (PreparedStatement ps = conn.prepareStatement(query)) {
             ps.setInt(1, id);
@@ -715,5 +826,96 @@ public class DBUtil {
             System.out.println("Erro ao executar a query " + ex.getMessage());
         }
         return null;
+    }
+
+    public static List<Chamada> listarChamadaSQL(int id) {
+        List<Chamada> chamadas = new ArrayList<>();
+        String query = "SELECT * FROM chamada WHERE turma_id = ?";
+        try (PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setInt(1, id);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                int alunoID = rs.getInt("aluno_id");
+                Date data = rs.getDate("data");
+                String status = rs.getString("status");
+                Chamada chamada = new Chamada(Objects.requireNonNull(Aluno.getALunoByID(alunoID)), data, Objects.requireNonNull(Turma.getTurmaByID(id)), status);
+                chamadas.add(chamada);
+            }
+        } catch (SQLException ex) {
+            System.out.println("Erro ao executar a query listarChamadaSQL" + ex.getMessage());
+        }
+        return chamadas;
+    }
+
+    public static Turma getTurmaByID(int turmaID) {
+        String query = "SELECT * FROM turmas WHERE id = ?";
+        try (PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setInt(1, turmaID);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                String nome = rs.getString("nome");
+                int ano = rs.getInt("ano");
+                return new Turma(turmaID, nome, ano);
+            }
+        } catch (SQLException ex) {
+            System.out.println("Erro ao executar a query DNV AQUI getTurmaByID  " + ex.getMessage());
+        }
+        return null;
+    }
+
+    public static void atualizarEvento(Calendario calendario) {
+        String query = "UPDATE eventos SET data = ?, evento = ?, descricao = ? WHERE id = ?";
+
+        try (PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setDate(1, new java.sql.Date(calendario.getData().getTime()));
+            ps.setString(2, calendario.getEvento());
+            ps.setString(3, calendario.getDescricao());
+            ps.setInt(4, calendario.getId());
+            ps.executeUpdate();
+        } catch (SQLException ex) {
+            System.out.println("Erro ao atualizar o evento " + ex.getMessage());
+        }
+    }
+
+    public static Turma getTurmaByName(String turmaNome) {
+        String query = "SELECT * FROM turmas WHERE nome = ?";
+        try (PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setString(1, turmaNome);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                int id = rs.getInt("id");
+                String nome = rs.getString("nome");
+                int ano = rs.getInt("ano");
+                return new Turma(id, nome, ano);
+            }
+        } catch (SQLException ex) {
+            System.out.println("Erro ao executar a query " + ex.getMessage());
+        }
+        return null;
+    }
+
+    public static void adicionarEvento(Calendario calendario) {
+        String query = "INSERT INTO eventos (data, evento, descricao, id_turma) VALUES (?, ?, ?, ?)";
+
+        try (PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setDate(1, new java.sql.Date(calendario.getData().getTime()));
+            ps.setString(2, calendario.getEvento());
+            ps.setString(3, calendario.getDescricao());
+            ps.setInt(4, calendario.getTurma().getId());
+            ps.executeUpdate();
+        } catch (SQLException ex) {
+            System.out.println("Erro ao adicionar o evento " + ex.getMessage());
+        }
+    }
+
+    public static void deletarEvento(Calendario calendario) {
+        String query = "DELETE FROM eventos WHERE id = ?";
+
+        try (PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setInt(1, calendario.getId());
+            ps.executeUpdate();
+        } catch (SQLException ex) {
+            System.out.println("Erro ao deletar o evento " + ex.getMessage());
+        }
     }
 }

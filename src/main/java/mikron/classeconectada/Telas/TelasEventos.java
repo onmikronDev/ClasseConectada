@@ -4,12 +4,17 @@
  */
 package mikron.classeconectada.Telas;
 
-import mikron.classeconectada.db.DBUtil;
-import mikron.classeconectada.System.Util;
+import mikron.classeconectada.System.Calendario;
+import mikron.classeconectada.System.Notas;
+import mikron.classeconectada.db.DBUtil;import mikron.classeconectada.System.Util;
 
 import javax.swing.*;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.*;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 
 /**
  *
@@ -20,12 +25,16 @@ public class TelasEventos extends javax.swing.JFrame {
     /**
      * Creates new form TelasEventos
      */
-    DBUtil db;
+    ArrayList<Calendario> eventos = new ArrayList<>();
     public TelasEventos() {
         initComponents();
-        db = new DBUtil();
 
-        db.listarEventosTabelas(jTable1);
+        DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
+        SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
+        for (Calendario c : DBUtil.listarEventos()) {
+            model.addRow(new Object[]{c.getEvento(), sdf.format(c.getData())});
+            eventos.add(c);
+        }
 
     }
 
@@ -180,7 +189,14 @@ public class TelasEventos extends javax.swing.JFrame {
         // visualizar
         int selectedRow = jTable1.getSelectedRow();
         if (selectedRow != -1) {
-            int id = Integer.parseInt((String) jTable1.getValueAt(selectedRow, 0));
+            System.out.println(jTable1.getValueAt(selectedRow, 0));
+            String evento = String.valueOf(jTable1.getValueAt(selectedRow, 0));
+
+            for (Calendario c : eventos) {
+                if (c.getEvento().equalsIgnoreCase(evento)) {
+                    c.visualizarEventos();
+                }
+            }
 
         } else {
             JOptionPane.showMessageDialog(this, "Selecione uma linha para visualizar.");
@@ -190,6 +206,7 @@ public class TelasEventos extends javax.swing.JFrame {
     private void jButton13ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton13ActionPerformed
         // TODO add your handling code here:
         // voltar
+        Util.tela(new TelaInicial(Util.userPermission), this);
     }//GEN-LAST:event_jButton13ActionPerformed
 
     private void jButton14ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton14ActionPerformed
@@ -197,8 +214,14 @@ public class TelasEventos extends javax.swing.JFrame {
         // editar
         int selectedRow = jTable1.getSelectedRow();
         if (selectedRow != -1) {
-            int id = Integer.parseInt((String) jTable1.getValueAt(selectedRow, 0));
+            String evento = String.valueOf(jTable1.getValueAt(selectedRow, 0));
+            String data = String.valueOf(jTable1.getValueAt(selectedRow, 1));
 
+            for (Calendario c : eventos) {
+                if (c.getEvento().equalsIgnoreCase(evento)) {
+                    Util.tela(new TelaEventosAdicionar(c), this);
+                }
+            }
         } else {
             JOptionPane.showMessageDialog(this, "Selecione uma linha para editar.");
         }
@@ -215,7 +238,12 @@ public class TelasEventos extends javax.swing.JFrame {
         // deletar
         int selectedRow = jTable1.getSelectedRow();
         if (selectedRow != -1) {
-            int id = Integer.parseInt((String) jTable1.getValueAt(selectedRow, 0));
+            String evento = String.valueOf(jTable1.getValueAt(selectedRow, 0));
+            for (Calendario c : eventos) {
+                if (c.getEvento().equalsIgnoreCase(evento)) {
+                    c.deletarEvento();
+                }
+            }
 
             DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
             model.removeRow(selectedRow);

@@ -31,7 +31,7 @@ public class Diretor extends User {
             turma.addAluno(aluno);
 		} else if(User instanceof Professor) {
 			Professor professor = (Professor) User;
-			turma.addProfessor(professor);
+			//turma.addProfessor(professor);
 		}
 	}
 

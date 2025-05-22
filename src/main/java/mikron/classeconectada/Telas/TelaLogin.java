@@ -6,7 +6,6 @@ package mikron.classeconectada.Telas;
 
 import mikron.classeconectada.System.Util;
 import mikron.classeconectada.db.DBUtil;
-
 import javax.swing.*;
 
 /**
@@ -19,10 +18,8 @@ public class TelaLogin extends javax.swing.JFrame {
      * Creates new form TelaLogin
      */
 
-    DBUtil db;
     public TelaLogin() {
         initComponents();
-        db = new DBUtil();
     }
 
     /**
@@ -143,7 +140,7 @@ public class TelaLogin extends javax.swing.JFrame {
         String login = jTextField2.getText();
         String senha = jPasswordField1.getText();
 
-        String loginKey = db.login(login, senha);
+        String loginKey = DBUtil.login(login, senha);
         if(loginKey != null){
             Util.tela(new TelaInicial(loginKey),this);
             Util.userPermission = loginKey;

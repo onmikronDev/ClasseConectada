@@ -3,26 +3,64 @@ package mikron.classeconectada.System;
 
 import mikron.classeconectada.User.Aluno;
 import mikron.classeconectada.User.Professor;
+import mikron.classeconectada.db.DBUtil;
 
 import java.util.Date;
 import java.util.List;
 
-public class Chamada extends Turma {
+public class Chamada {
 
 	private Aluno aluno;
 
-	private boolean presenca;
-
-	private Professor professor;
-
 	private Date data;
 
-	public Chamada(int id, String sala,int ano) {
-		super(id, sala, ano);
+	private Turma turma;
+
+	private String status;
+
+	public Chamada(Aluno aluno, Date data, Turma turma, String status) {
+		this.aluno = aluno;
+		this.data = data;
+		this.turma = turma;
+		this.status = status;
 	}
 
-	public void RegistrarChamada() {
-
+	public Chamada(Aluno aluno, Date data, Turma turma) {
+		this.aluno = aluno;
+		this.data = data;
+		this.turma = turma;
+		this.status = DBUtil.getChamadaStatus(aluno.getId(), (java.sql.Date) data, turma.getId());
 	}
 
+	public Aluno getAluno() {
+		return aluno;
+	}
+
+	public void setAluno(Aluno aluno) {
+		this.aluno = aluno;
+	}
+
+	public Date getData() {
+		return data;
+	}
+
+	public void setData(Date data) {
+		this.data = data;
+	}
+
+	public Turma getTurma() {
+		return turma;
+	}
+
+	public void setTurma(Turma turma) {
+		this.turma = turma;
+	}
+
+	public String getStatus() {
+		return status;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
+	}
 }

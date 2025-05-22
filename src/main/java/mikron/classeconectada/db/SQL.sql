@@ -59,6 +59,14 @@ create table turmas (
                         ano INT NOT NULL
 );
 
+create table turmas_aluno (
+                              id INT PRIMARY KEY AUTO_INCREMENT,
+                              aluno_id INT NOT NULL,
+                              turma_id INT NOT NULL,
+                              FOREIGN KEY (aluno_id) REFERENCES aluno(id),
+                              FOREIGN KEY (turma_id) REFERENCES turmas(id)
+);
+
 
 create table chamada (
                          id INT PRIMARY KEY AUTO_INCREMENT,
@@ -68,6 +76,14 @@ create table chamada (
                          status ENUM('presente', 'ausente', 'justificada') NOT NULL,
                          FOREIGN KEY (aluno_id) REFERENCES aluno(id),
                          FOREIGN KEY (turma_id) REFERENCES turmas(id)
+);
+
+create table chamada_aluno (
+                               id INT PRIMARY KEY AUTO_INCREMENT,
+                               chamada_id INT NOT NULL,
+                               aluno_id INT NOT NULL,
+                               FOREIGN KEY (chamada_id) REFERENCES chamada(id),
+                               FOREIGN KEY (aluno_id) REFERENCES aluno(id)
 );
 
 drop table chamada;
@@ -166,6 +182,9 @@ insert into disciplina (nome) values ('Português');
 insert into disciplina (nome) values ('História');
 insert into disciplina (nome) values ('Geografia');
 insert into professor_disciplina (professor_id, disciplina_id) values (2, 1);
+
+
+insert into eventos (evento, data, descricao, id_turma) values ('Reunião de Pais', '2023-10-15', 'Reunião para discutir o desempenho dos alunos.', 1);
 
 select * from disciplina;
 

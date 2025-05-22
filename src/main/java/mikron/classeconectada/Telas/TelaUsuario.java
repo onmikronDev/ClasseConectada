@@ -4,9 +4,10 @@
  */
 package mikron.classeconectada.Telas;
 
+import mikron.classeconectada.System.Relatorio;
 import mikron.classeconectada.System.Util;
+import mikron.classeconectada.User.Aluno;
 import mikron.classeconectada.db.DBUtil;
-
 import javax.swing.table.DefaultTableModel;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -22,11 +23,9 @@ public class TelaUsuario extends javax.swing.JFrame {
      * Creates new form TelaUsuario2
      */
     String tipoUser;
-    DBUtil db;
     private int selectedUserTypeRow = -1;
     public TelaUsuario(String tipoUser) {
         this.tipoUser = tipoUser;
-        db = new DBUtil();
         initComponents();
         
         jTable2.getSelectionModel().addListSelectionListener(event -> {
@@ -38,7 +37,7 @@ public class TelaUsuario extends javax.swing.JFrame {
 
                     DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
                     model.setRowCount(0);
-                    db.listarUserByProfissao(jTable1, String.valueOf(jTable2.getValueAt(selectedUserTypeRow, 0)));
+                    DBUtil.listarUserByProfissao(jTable1, String.valueOf(jTable2.getValueAt(selectedUserTypeRow, 0)));
                 }
             }
         });
@@ -50,7 +49,7 @@ public class TelaUsuario extends javax.swing.JFrame {
                 if (selectedRow != -1 && selectedUserTypeRow != -1) {
                     String userType = jTable2.getValueAt(selectedUserTypeRow, 0).toString();
 
-                    System.out.println("Selected row: GAY   " + selectedRow);
+                    System.out.println("Selected row:   " + selectedRow);
                     System.out.println("Value: " + jTable1.getValueAt(selectedRow, 0));
 
                     jLabel3.setText("Nome: ");
@@ -65,9 +64,9 @@ public class TelaUsuario extends javax.swing.JFrame {
                     jTextArea1.setText("");
                     jTextArea3.setText("");
 
-                    int userID = db.getUserIDByName(String.valueOf(jTable1.getValueAt(selectedRow, 0)));
+                    int userID = DBUtil.getUserIDByName(String.valueOf(jTable1.getValueAt(selectedRow, 0)));
 
-                    String[] userdata = db.getUserDataByID(userID);
+                    String[] userdata = DBUtil.getUserDataByID(userID);
 
                     for (int i = 0; i < userdata.length; i++) {
                         if (userdata[i] == null) {
@@ -75,19 +74,28 @@ public class TelaUsuario extends javax.swing.JFrame {
                         }
 
                         if(userType.equalsIgnoreCase("Professor")){
-                            String[] professor = db.getProfessorDataByID(userID);
+                            String[] professor = DBUtil.getProfessorDataByID(userID);
                             System.out.println("ID: " + userID);
-                            System.out.println(Arrays.toString(db.getProfessorDataByID(userID)));
+                            System.out.println(Arrays.toString(DBUtil.getProfessorDataByID(userID)));
                             jLabel9.setText("Materias: " + professor[0]);
                         }
 
                         if(userType.equalsIgnoreCase("Aluno")){
-                            String[] aluno = db.getAlunoDataByID(userID);
+                            Aluno aluno = DBUtil.getAlunoByID(userID);
+                            assert aluno != null;
+                            Relatorio relatorio = Relatorio.buscarRelatorio(aluno);
+
+                            String relatorioData = relatorio.getRelatorio();
+
+                            jTextArea1.setText(relatorioData);
+
                             System.out.println("ID: " + userID);
-                            System.out.println(Arrays.toString(db.getAlunoDataByID(userID)));
-                            jLabel8.setText("Pai: " + aluno[0]);
-                            jLabel12.setText("Mãe: " + aluno[1]);
-                            jLabel10.setText("Turmas: " + db.getTurmaNameByID(Integer.parseInt(aluno[2])));
+//                            System.out.println(Arrays.toString(DBUtil.getAlunoDataByID(userID)));
+                            jLabel8.setText("Pai: " + aluno.getPai());
+                            jLabel12.setText("Mãe: " + aluno.getMae());
+                            jLabel10.setText("Turmas: " + aluno.getTurma().getNome());
+
+
                         }
 
                         jLabel3.setText("Nome: " + userdata[0]);

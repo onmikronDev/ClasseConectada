@@ -5,8 +5,8 @@
 package mikron.classeconectada.Telas;
 
 import mikron.classeconectada.System.Util;
+import mikron.classeconectada.User.Aluno;
 import mikron.classeconectada.db.DBUtil;
-
 import javax.swing.*;
 
 /**
@@ -18,15 +18,10 @@ public class TelaObservacao extends javax.swing.JFrame {
     /**
      * Creates new form TelaObservacao
      */
-    DBUtil db;
 
-    private String aluno;
-    private String turma;
-    public TelaObservacao(String aluno) {
-        db = new DBUtil();
+    private Aluno aluno;
+    public TelaObservacao(Aluno aluno) {
         this.aluno = aluno;
-        turma = db.getTurmaNameByAlunoName(aluno);
-        System.out.println(turma);
         initComponents();
     }
 
@@ -129,8 +124,8 @@ public class TelaObservacao extends javax.swing.JFrame {
                 .addGap(0, 0, Short.MAX_VALUE))
         );
 
-        jLabel1.setText("Aluno: " + aluno);
-        jLabel2.setText("Turma: " + turma);
+        jLabel1.setText("Aluno: " + aluno.getNome());
+        jLabel2.setText("Turma: " + aluno.getTurma().getNome());
 
 
         pack();
@@ -146,8 +141,8 @@ public class TelaObservacao extends javax.swing.JFrame {
         }
 
         try {
-            String query = "INSERT INTO observacao (aluno_id, data, conteudo) VALUES (" + db.getAlunoByName(aluno) + ", '" + new java.sql.Date(System.currentTimeMillis()) + "', '" + observacao + "')";
-            db.sendQuery(query);
+            String query = "INSERT INTO observacao (aluno_id, data, conteudo) VALUES (" + aluno.getId() + ", '" + Util.getSQLDate() + "', '" + observacao + "')";
+            DBUtil.sendQuery(query);
             JOptionPane.showMessageDialog(this, "Observação enviada com sucesso!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Erro ao enviar observação, um erro inesperado aconteceu", "Erro", JOptionPane.ERROR_MESSAGE);
@@ -185,7 +180,7 @@ public class TelaObservacao extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new TelaObservacao("").setVisible(true);
+                new TelaObservacao(null).setVisible(true);
             }
         });
     }

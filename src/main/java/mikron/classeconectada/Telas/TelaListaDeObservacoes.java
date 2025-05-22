@@ -4,11 +4,15 @@
  */
 package mikron.classeconectada.Telas;
 
+import mikron.classeconectada.System.Observacao;
 import mikron.classeconectada.System.Util;
+import mikron.classeconectada.User.Aluno;
 import mikron.classeconectada.db.DBUtil;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+import java.text.SimpleDateFormat;
+import java.util.List;
 
 /**
  *
@@ -20,13 +24,19 @@ public class TelaListaDeObservacoes extends javax.swing.JFrame {
      * Creates new form TelaListaDeObservações
      */
     DBUtil db;
-    private String aluno;
-    public TelaListaDeObservacoes(String aluno) {
+    private Aluno aluno;
+    private List<Observacao> observacoes;
+    public TelaListaDeObservacoes(Aluno aluno) {
         db = new DBUtil();
         this.aluno = aluno;
         initComponents();
 
-        db.listarObservacaoNaTabela(jTable1,db.getAlunoByName(aluno));
+        DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
+        observacoes = db.listarObservacao(aluno);
+        SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
+        for(Observacao obs : observacoes){
+            model.addRow(new Object[]{obs.getId(), sdf.format(obs.getData())});
+        }
 
     }
 
@@ -170,11 +180,14 @@ public class TelaListaDeObservacoes extends javax.swing.JFrame {
     private void jButton12ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton12ActionPerformed
         // TODO add your handling code here:
         // visualizar
-
         int selectedRow = jTable1.getSelectedRow();
         if (selectedRow != -1) {
-            int id = Integer.parseInt((String) jTable1.getValueAt(selectedRow, 0));
-            JOptionPane.showMessageDialog(this, "Conteudo:" + db.getObservacaoByID(id));
+            int id = (int) jTable1.getValueAt(selectedRow, 0);
+            for(Observacao obs : observacoes) {
+                if(obs.getId() == id){
+                    JOptionPane.showMessageDialog(this, "Conteudo:" + obs.getObservacao() + "\nData: " + obs.getData(), "Observação", JOptionPane.INFORMATION_MESSAGE);
+                }
+            }
         } else {
             JOptionPane.showMessageDialog(this, "Selecione uma linha para visualizar.");
         }
@@ -193,9 +206,14 @@ public class TelaListaDeObservacoes extends javax.swing.JFrame {
         // editar
         int selectedRow = jTable1.getSelectedRow();
         if (selectedRow != -1) {
-            int id = Integer.parseInt((String) jTable1.getValueAt(selectedRow, 0));
-            String conteudo = JOptionPane.showInputDialog("Conteudo:", db.getObservacaoByID(id));
-            db.editarObservacao(id, conteudo);
+            int id = (int) jTable1.getValueAt(selectedRow, 0);
+            for(Observacao obs : observacoes) {
+                if (obs.getId() == id) {
+                    String conteudo = JOptionPane.showInputDialog("Conteudo:", obs.getObservacao());
+                    obs.setObservacao(conteudo);
+                    DBUtil.editarObservacao(obs);
+                }
+            }
             JOptionPane.showMessageDialog(this, "Observação editada com sucesso.");
         } else {
             JOptionPane.showMessageDialog(this, "Selecione uma linha para editar.");
@@ -214,7 +232,11 @@ public class TelaListaDeObservacoes extends javax.swing.JFrame {
         int selectedRow = jTable1.getSelectedRow();
         if (selectedRow != -1) {
             int id = Integer.parseInt((String) jTable1.getValueAt(selectedRow, 0));
-            db.deletarObservacao(id);
+            for(Observacao obs : observacoes){
+                if(obs.getId() == id){
+                    DBUtil.deletarObservacao(obs);
+                }
+            }
             DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
             model.removeRow(selectedRow);
             JOptionPane.showMessageDialog(this, "Observação deletada com sucesso.");
@@ -254,7 +276,7 @@ public class TelaListaDeObservacoes extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new TelaListaDeObservacoes("").setVisible(true);
+                new TelaListaDeObservacoes(null).setVisible(true);
             }
         });
     }

@@ -4,7 +4,9 @@ package mikron.classeconectada.System;
 import mikron.classeconectada.System.Chamada;
 import mikron.classeconectada.User.Aluno;
 import mikron.classeconectada.User.Professor;
+import mikron.classeconectada.db.DBUtil;
 
+import javax.swing.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,21 +14,27 @@ public class Turma {
 
 	private int id;
 	private int ano;
-
-	private String sala;
-
+	private String nome;
 	private List<Aluno> alunos;
-
 	private List<Professor> professores;
+	private List<Chamada> chamadas;
 
-	private Chamada chamada;
 
-
-	public Turma(int id, String sala, int ano) {
-		alunos = new ArrayList<Aluno>();
+	public Turma(int id, String nome, int ano) {
+		alunos = DBUtil.listarAlunosSQL(id);
 		this.id = id;
-		this.sala = sala;
+		this.nome = nome;
 		this.ano = ano;
+	}
+
+	public static Turma getTurmaByID(int turmaID) {
+		Turma turma = DBUtil.getTurmaByID(turmaID);
+		if (turma != null) {
+			return turma;
+		} else {
+			System.out.println("Turma não encontrada.");
+			return null;
+		}
 	}
 
 	public void addAluno(Aluno aluno) {
@@ -42,7 +50,13 @@ public class Turma {
 	}
 
 	public void consultarAlunoByID(int id) {
-
+		for (Aluno aluno : alunos) {
+			if (aluno.getId() == id) {
+				System.out.println("ID: " + aluno.getId() + ", Nome: " + aluno.getNome());
+				return;
+			}
+		}
+		System.out.println("Aluno não encontrado.");
 	}
 
 	public void listarAlunos() {
@@ -59,8 +73,8 @@ public class Turma {
 		return id;
 	}
 
-	public String getSala() {
-		return sala;
+	public String getNome() {
+		return nome;
 	}
 
 	public List<Aluno> getAlunos() {
@@ -71,19 +85,40 @@ public class Turma {
 		return professores;
 	}
 
-	public Chamada getChamada() {
-		return chamada;
-	}
-
 	public int getAno() {
 		return ano;
 	}
 
-	public void addProfessor(Professor professor) {
-		if (professor != null) {
-			professores.add(professor);
-		} else {
-			System.out.println("Professor não pode ser nulo.");
+	public void setProfessores(List<Professor> professores) {
+		this.professores = professores;
+	}
+
+	public void setAlunos(List<Aluno> alunos) {
+		this.alunos = alunos;
+	}
+
+	public List<Aluno> getAlunosList() {
+		return alunos;
+	}
+
+	public Aluno getAlunoByName(String aluno1) {
+		for (Aluno aluno : alunos) {
+			if (aluno.getNome().equalsIgnoreCase(aluno1)) {
+				return aluno;
+			}
 		}
+		return null;
+	}
+
+	public void addChamada(Chamada chamada) {
+		this.chamadas.add(chamada);
+	}
+
+	public void setChamada(List<Chamada> chamada) {
+		this.chamadas = chamada;
+	}
+
+	public List<Chamada> getChamadas() {
+		return chamadas;
 	}
 }
