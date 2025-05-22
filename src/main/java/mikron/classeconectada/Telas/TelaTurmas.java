@@ -24,50 +24,52 @@ public class TelaTurmas extends javax.swing.JFrame {
      * Creates new form TelaTurmas
      */
 
-    String status = "Presente";
-    int idTurmaSelecionada;
-    private int idAlunoSelecionado;
-    Turma turmaSelecionada;
-    Aluno alunoSelecionado;
-    Chamada chamada;
+    String status;
+    private int idTurmaSelecionada;
+    private Turma turmaSelecionada;
+    private Aluno alunoSelecionado;
+    private Chamada chamada;
     public TelaTurmas() {
         initComponents();
+        configurarSelecaoTurma();
 
+    }
+    private void configurarSelecaoTurma() {
+        DefaultTableModel model = (DefaultTableModel) jTable2.getModel(); // arrumar
 
-
-
-        DBUtil.listarTurmasTabela(jTable2); // arrumar
+        for(Turma turma : DBUtil.listarTurmasSQL()) {
+            model.addRow(new Object[]{turma.getNome()});
+        }
 
         jTable2.getSelectionModel().addListSelectionListener(event -> {
             if (!event.getValueIsAdjusting()) {
                 int selectedRow = jTable2.getSelectedRow();
                 if (selectedRow != -1) {
-                    System.out.println("Selected row: " + selectedRow);
-                    System.out.println("Value: " + jTable2.getValueAt(selectedRow, 0));
                     idTurmaSelecionada = DBUtil.getTurmaIDByName(jTable2.getValueAt(selectedRow, 0).toString());
-
                     turmaSelecionada = DBUtil.getTurma(idTurmaSelecionada);
-                    assert turmaSelecionada != null;
-                    turmaSelecionada.setChamada(DBUtil.listarChamadaSQL(turmaSelecionada.getId()));
-
-                    DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
-                    model.setRowCount(0);
-
-                    for (Aluno aluno : turmaSelecionada.getAlunos()) {
-                        alunoSelecionado = aluno;
-                        chamada = new Chamada(aluno, Util.getSQLDate(), turmaSelecionada);
-                        status = chamada.getStatus();
-                        model.addRow(new Object[]{aluno.getNome(), status});
-                        turmaSelecionada.addChamada(chamada);
+                    if (turmaSelecionada != null) {
+                        turmaSelecionada.setChamada(DBUtil.listarChamadaSQL(turmaSelecionada.getId()));
+                        atualizarTabelaAlunos();
                     }
                 }
             }
         });
-
-
-
     }
 
+    private void atualizarTabelaAlunos() {
+        DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
+        model.setRowCount(0);
+        for (Aluno aluno : turmaSelecionada.getAlunos()) {
+            alunoSelecionado = aluno;
+            chamada = new Chamada(aluno, Util.getSQLDate(), turmaSelecionada);
+            status = chamada.getStatus();
+            if(status == null) {
+                status = "Presente";
+            }
+            model.addRow(new Object[]{aluno.getNome(), status});
+            turmaSelecionada.addChamada(chamada);
+        }
+    }
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -98,15 +100,15 @@ public class TelaTurmas extends javax.swing.JFrame {
         jTable1.setBackground(new java.awt.Color(48, 100, 100));
         jTable1.setForeground(new java.awt.Color(255, 255, 255));
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
+                new Object [][] {
 
-            },
-            new String [] {
-                "Lista de Alunos", "Presença"
-            }
+                },
+                new String [] {
+                        "Lista de Alunos", "Presença"
+                }
         ) {
             boolean[] canEdit = new boolean [] {
-                false, false
+                    false, false
             };
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
@@ -124,15 +126,15 @@ public class TelaTurmas extends javax.swing.JFrame {
         jTable2.setBackground(new java.awt.Color(48, 100, 100));
         jTable2.setForeground(new java.awt.Color(255, 255, 255));
         jTable2.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
+                new Object [][] {
 
-            },
-            new String [] {
-                "Lista de Turmas"
-            }
+                },
+                new String [] {
+                        "Lista de Turmas"
+                }
         ) {
             boolean[] canEdit = new boolean [] {
-                false
+                    false
             };
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
@@ -191,115 +193,99 @@ public class TelaTurmas extends javax.swing.JFrame {
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 144, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 176, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(32, 32, 32)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jButton4, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jButton7, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jButton6, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jButton5, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                .addGap(1411, 1411, 1411))
+                jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 144, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 176, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                        .addGroup(jPanel1Layout.createSequentialGroup()
+                                                .addGap(32, 32, 32)
+                                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                                        .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                        .addComponent(jButton4, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                        .addComponent(jButton7, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                        .addGroup(jPanel1Layout.createSequentialGroup()
+                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                                        .addComponent(jButton6, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                        .addComponent(jButton5, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                                .addGap(1411, 1411, 1411))
         );
         jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 318, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                         .addGroup(jPanel1Layout.createSequentialGroup()
-                            .addContainerGap()
-                            .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 318, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGroup(jPanel1Layout.createSequentialGroup()
-                            .addGap(30, 30, 30)
-                            .addComponent(jButton4, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGap(18, 18, 18)
-                            .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGap(18, 18, 18)
-                            .addComponent(jButton7, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGap(18, 18, 18)
-                            .addComponent(jButton5, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGap(18, 18, 18)
-                            .addComponent(jButton6, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                .addContainerGap(19, Short.MAX_VALUE))
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 318, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                                .addGroup(jPanel1Layout.createSequentialGroup()
+                                                        .addContainerGap()
+                                                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 318, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                                .addGroup(jPanel1Layout.createSequentialGroup()
+                                                        .addGap(30, 30, 30)
+                                                        .addComponent(jButton4, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                        .addGap(18, 18, 18)
+                                                        .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                        .addGap(18, 18, 18)
+                                                        .addComponent(jButton7, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                        .addGap(18, 18, 18)
+                                                        .addComponent(jButton5, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                        .addGap(18, 18, 18)
+                                                        .addComponent(jButton6, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                                .addContainerGap(19, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 531, javax.swing.GroupLayout.PREFERRED_SIZE)
+                layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 531, javax.swing.GroupLayout.PREFERRED_SIZE)
         );
         layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, Short.MAX_VALUE))
+                layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(layout.createSequentialGroup()
+                                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(0, 0, Short.MAX_VALUE))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
-        // TODO add your handling code here:
-        // aplicar notas
         if (jTable1.getSelectedRow() == -1) {
             JOptionPane.showMessageDialog(this, "Selecione um aluno para aplicar notas.");
             return;
         }
-
-        Util.tela(new TelaAplicarNotas(alunoSelecionado),this,false);
+        Util.tela(new TelaAplicarNotas(alunoSelecionado), this, false);
     }//GEN-LAST:event_jButton3ActionPerformed
 
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
-        // TODO add your handling code here:
-        // status presença
         Date data = Util.getSQLDate();
-        int idTurma = DBUtil.getTurmaIDByName((String) jTable2.getValueAt(jTable2.getSelectedRow(), 0));
-        System.out.println("idTurmaSelecionada: " + idTurma);
         int selectedRow = jTable1.getSelectedRow();
         if (selectedRow != -1) {
             alunoSelecionado = turmaSelecionada.getAlunoByName((String) jTable1.getValueAt(selectedRow, 0));
-            idAlunoSelecionado = alunoSelecionado.getId();
-            if (status.equals("Presente")) {
-                status = "Ausente";
-                if(DBUtil.checkChamadaSQL(idAlunoSelecionado,data,idTurma)) {
-                    DBUtil.updateChamada(idAlunoSelecionado, data, idTurma, status);
-                } else {
-                    DBUtil.chamadaSQL(idAlunoSelecionado, data, idTurma, status);
-                }
-            } else if (status.equals("Ausente")) {
-                status = "justificada";
-                if(DBUtil.checkChamadaSQL(idAlunoSelecionado,data,idTurma)) {
-                    DBUtil.updateChamada(idAlunoSelecionado, data, idTurma, status);
-                } else {
-                    DBUtil.chamadaSQL(idAlunoSelecionado, data, idTurma, status);
-                }
-            } else if (status.equals("justificada")) {
-                status = "Presente";
-                if(DBUtil.checkChamadaSQL(idAlunoSelecionado,Util.getSQLDate(),idTurma)) {
-                    DBUtil.updateChamada(idAlunoSelecionado, Util.getSQLDate(), idTurma, status);
-                } else {
-                    DBUtil.chamadaSQL(idAlunoSelecionado, Util.getSQLDate(), idTurma, status);
-                }
-            }
-            jTable1.setValueAt(status, selectedRow, 1);
+            alternarStatusPresenca(data, selectedRow);
         } else {
             JOptionPane.showMessageDialog(this, "Selecione um aluno para atualizar o status.");
         }
-
     }//GEN-LAST:event_jButton4ActionPerformed
-
+    private void alternarStatusPresenca(Date data, int selectedRow) {
+        switch (status) {
+            case "Presente":
+                status = "Ausente";
+                break;
+            case "Ausente":
+                status = "justificada";
+                break;
+            default:
+                status = "Presente";
+                break;
+        }
+        chamada = new Chamada(alunoSelecionado, data, turmaSelecionada);
+        chamada.aplicarChamada(status);
+        jTable1.setValueAt(status, selectedRow, 1);
+    }
     private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
         // TODO add your handling code here:
         // observações
@@ -313,21 +299,15 @@ public class TelaTurmas extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton5ActionPerformed
 
     private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
-        // TODO add your handling code here:
-        // voltar
-        Util.tela(new TelaInicial(Util.userPermission),this);
+        Util.tela(new TelaInicial(Util.userPermission), this);
     }//GEN-LAST:event_jButton6ActionPerformed
 
     private void jButton7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton7ActionPerformed
-        // TODO add your handling code here:
-        // historico
-
         if (jTable1.getSelectedRow() == -1) {
             JOptionPane.showMessageDialog(this, "Selecione um aluno para ver o histórico.");
             return;
         }
-
-        Util.tela(new TelaHistorico(alunoSelecionado),this);
+        Util.tela(new TelaHistorico(alunoSelecionado), this);
     }//GEN-LAST:event_jButton7ActionPerformed
 
     /**
@@ -337,7 +317,7 @@ public class TelaTurmas extends javax.swing.JFrame {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
         /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
+         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html
          */
         try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {

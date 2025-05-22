@@ -77,6 +77,7 @@ public class TelaUsuario extends javax.swing.JFrame {
                             String[] professor = DBUtil.getProfessorDataByID(userID);
                             System.out.println("ID: " + userID);
                             System.out.println(Arrays.toString(DBUtil.getProfessorDataByID(userID)));
+                            assert professor != null;
                             jLabel9.setText("Materias: " + professor[0]);
                         }
 

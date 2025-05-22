@@ -30,6 +30,18 @@ public class Chamada {
 		this.data = data;
 		this.turma = turma;
 		this.status = DBUtil.getChamadaStatus(aluno.getId(), (java.sql.Date) data, turma.getId());
+		if(status == null) {
+			DBUtil.chamadaSQL(aluno.getId(), (java.sql.Date) data, turma.getId(), "Presente");
+		}
+	}
+
+	public void aplicarChamada(String status) {
+		this.status = status;
+		if (DBUtil.checkChamadaSQL(getAluno().getId(), (java.sql.Date) data, getTurma().getId())) {
+			DBUtil.updateChamada(getAluno().getId(), (java.sql.Date) data, getTurma().getId(), status);
+		} else {
+			DBUtil.chamadaSQL(getAluno().getId(), (java.sql.Date) data, getTurma().getId(), status);
+		}
 	}
 
 	public Aluno getAluno() {

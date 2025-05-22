@@ -176,20 +176,7 @@ public static List<Calendario> listarEventos() {
         }
 
 
-    public static ArrayList<Turma> listarTurmasTabela(JTable tabelas) {
-        ArrayList<Turma> ArrayListakekw = listarTurmasSQL();
-        DefaultTableModel tabelaArrayLista = (DefaultTableModel) tabelas.getModel();
-        tabelas.setRowSorter(new TableRowSorter(tabelaArrayLista));
-        for(Turma turma : ArrayListakekw){
-            Object[] obj = new Object[]{
-                    turma.getNome(),
-                    turma.getAno(),
-                    turma.getId()
-            };
-            tabelaArrayLista.addRow(obj);
-        }
-        return ArrayListakekw;
-    }
+
 
     public static ArrayList<Turma> listarTurmasSQL() {
         ArrayList<Turma> turmas = new ArrayList<>();
@@ -302,22 +289,23 @@ public static List<Calendario> listarEventos() {
     }
 
     public static void cadrastarAluno(int id, String pai, String mae, int turmaID) {
-        String query = "INSERT INTO aluno (id,pai,mae,turma_id) VALUES (?, ?, ?, ?)";
+        String query = "INSERT INTO aluno (id,pai,mae,turma_id, recado) VALUES (?, ?, ?, ?, ?)";
         try (PreparedStatement ps = conn.prepareStatement(query)) {
             ps.setInt(1, id);
             ps.setString(2, pai);
             ps.setString(3, mae);
             ps.setInt(4, turmaID);
+            ps.setString(5, "Nenhum recado");
             ps.executeUpdate();
         } catch (SQLException ex) {
             System.out.println("Erro ao executar a query " + ex.getMessage());
         }
     }
-    public static void cadrastarProfessor(int id, String formacao) {
-        String query = "INSERT INTO professor (id, formação) VALUES (?, ?)";
+    public static void cadrastarProfessor(int id, String disciplina) {
+        String query = "INSERT INTO professor (id, disciplina) VALUES (?, ?)";
         try (PreparedStatement ps = conn.prepareStatement(query)) {
             ps.setInt(1, id);
-            ps.setString(2, formacao);
+            ps.setString(2, disciplina);
             ps.executeUpdate();
         } catch (SQLException ex) {
             System.out.println("Erro ao executar a query " + ex.getMessage());
@@ -475,8 +463,8 @@ public static List<Calendario> listarEventos() {
             ps.setInt(1, id);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
-                String formacao = rs.getString("formação");
-                return new String[]{formacao};
+                String disciplina = rs.getString("disciplina");
+                return new String[]{disciplina};
             }
         } catch (SQLException ex) {
             System.out.println("Erro ao executar a query " + ex.getMessage());
@@ -680,7 +668,7 @@ public static List<Calendario> listarEventos() {
     }
 
     public static void cadrastarProfessorTurma(int id, int idturma) {
-        String query = "INSERT INTO professor_turma (professor_id, turma_id) VALUES (?, ?)";
+        String query = "INSERT INTO professor_turmas (professor_id, turma_id) VALUES (?, ?)";
         try (PreparedStatement ps = conn.prepareStatement(query)) {
             ps.setInt(1, id);
             ps.setInt(2, idturma);
