@@ -33,9 +33,8 @@ public class TelaListaDeObservacoes extends javax.swing.JFrame {
 
         DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
         observacoes = db.listarObservacao(aluno);
-        SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
         for(Observacao obs : observacoes){
-            model.addRow(new Object[]{obs.getId(), sdf.format(obs.getData())});
+            model.addRow(new Object[]{obs.getId(), obs.getData()});
         }
 
     }

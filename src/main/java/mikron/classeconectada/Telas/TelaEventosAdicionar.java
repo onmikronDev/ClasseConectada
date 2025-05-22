@@ -237,8 +237,8 @@ public class TelaEventosAdicionar extends javax.swing.JFrame {
             Turma turma = DBUtil.getTurmaByName(turmaNome);
             calendario = new Calendario(0,date,evento,turma,descricao);
             DBUtil.adicionarEvento(calendario);
-            Util.tela(new TelasEventos(), this);
         }
+        Util.tela(new TelasEventos(), this);
     }//GEN-LAST:event_jButton7ActionPerformed
 
     private void jTextField3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField3ActionPerformed

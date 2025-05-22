@@ -84,8 +84,12 @@ public class TelaUsuario extends javax.swing.JFrame {
                             Aluno aluno = DBUtil.getAlunoByID(userID);
                             assert aluno != null;
                             Relatorio relatorio = Relatorio.buscarRelatorio(aluno);
-
-                            String relatorioData = relatorio.getRelatorio();
+                            String relatorioData;
+                            try {
+                                relatorioData = relatorio.getRelatorio();
+                            } catch (Exception e) {
+                                relatorioData = "Sem relatorio";
+                            }
 
                             jTextArea1.setText(relatorioData);
 
