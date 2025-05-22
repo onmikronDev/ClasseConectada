@@ -7,6 +7,7 @@ package mikron.classeconectada.Telas;
 import mikron.classeconectada.System.Relatorio;
 import mikron.classeconectada.System.Util;
 import mikron.classeconectada.User.Aluno;
+import mikron.classeconectada.User.Professor;
 import mikron.classeconectada.db.DBUtil;
 import javax.swing.table.DefaultTableModel;
 import java.util.ArrayList;
@@ -65,7 +66,7 @@ public class TelaUsuario extends javax.swing.JFrame {
                     jTextArea3.setText("");
 
                     int userID = DBUtil.getUserIDByName(String.valueOf(jTable1.getValueAt(selectedRow, 0)));
-
+                    System.out.println(userID);
                     String[] userdata = DBUtil.getUserDataByID(userID);
 
                     for (int i = 0; i < userdata.length; i++) {
@@ -74,18 +75,21 @@ public class TelaUsuario extends javax.swing.JFrame {
                         }
 
                         if(userType.equalsIgnoreCase("Professor")){
-                            String[] professor = DBUtil.getProfessorDataByID(userID);
+                            String professor2 = DBUtil.getProfessor(userID);
                             System.out.println("ID: " + userID);
-                            System.out.println(Arrays.toString(DBUtil.getProfessorDataByID(userID)));
-                            assert professor != null;
-                            jLabel9.setText("Materias: " + professor[0]);
+                            System.out.println(professor2);
+                            jLabel9.setText("Materias: " + professor2);
                         }
 
                         if(userType.equalsIgnoreCase("Aluno")){
                             Aluno aluno = DBUtil.getAlunoByID(userID);
                             assert aluno != null;
                             Relatorio relatorio = Relatorio.buscarRelatorio(aluno);
+
                             String relatorioData;
+                            if(relatorio == null){
+                                relatorioData = "Sem relatorio";
+                            }
                             try {
                                 relatorioData = relatorio.getRelatorio();
                             } catch (Exception e) {

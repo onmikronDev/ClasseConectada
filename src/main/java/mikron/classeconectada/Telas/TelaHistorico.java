@@ -73,7 +73,9 @@ public class TelaHistorico extends javax.swing.JFrame {
             }
         });
 
-        DBUtil.listarDisciplicasNaTabela(jTable2);
+        for(String disciplina : DBUtil.listarDisciplina()) {
+            modeljTable.addRow(new Object[]{disciplina});
+        }
 
     }
 

@@ -23,16 +23,14 @@ public class TelaListaDeObservacoes extends javax.swing.JFrame {
     /**
      * Creates new form TelaListaDeObservações
      */
-    DBUtil db;
     private Aluno aluno;
     private List<Observacao> observacoes;
     public TelaListaDeObservacoes(Aluno aluno) {
-        db = new DBUtil();
         this.aluno = aluno;
         initComponents();
 
         DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
-        observacoes = db.listarObservacao(aluno);
+        observacoes = DBUtil.listarObservacao(aluno);
         for(Observacao obs : observacoes){
             model.addRow(new Object[]{obs.getId(), obs.getData()});
         }

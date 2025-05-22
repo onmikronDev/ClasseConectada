@@ -2,6 +2,7 @@ package mikron.classeconectada.db;
 
 import mikron.classeconectada.System.*;
 import mikron.classeconectada.User.Aluno;
+import mikron.classeconectada.User.Professor;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -96,20 +97,6 @@ public static List<Calendario> listarEventos() {
     return eventos;
 }
 
-    public static ArrayList<String> listarDisciplicasNaTabela(JTable tabelas) {
-        ArrayList<String> ArrayListakekw = listarDisciplina();
-        DefaultTableModel tabelaArrayLista = (DefaultTableModel) tabelas.getModel();
-        tabelas.setRowSorter(new TableRowSorter(tabelaArrayLista));
-        for(String disciplina : ArrayListakekw){
-            Object[] obj = new Object[]{
-                    disciplina
-            };
-            tabelaArrayLista.addRow(obj);
-        }
-        return ArrayListakekw;
-    }
-
-
     public static int getUserIDByName(String name){
         String query = "SELECT id FROM user WHERE nome = ?";
         try (PreparedStatement ps = conn.prepareStatement(query)) {
@@ -123,25 +110,6 @@ public static List<Calendario> listarEventos() {
         }
         return -1;
     }
-
-    public static void listarTipoUserNaTabela(JTable tabelas) {
-        String query = "SELECT tipo FROM user";
-        try (PreparedStatement ps = conn.prepareStatement(query)) {
-            ResultSet rs = ps.executeQuery();
-            DefaultTableModel tabelaArrayLista = (DefaultTableModel) tabelas.getModel();
-            tabelas.setRowSorter(new TableRowSorter(tabelaArrayLista));
-            while (rs.next()) {
-                Object[] obj = new Object[]{
-                        rs.getString("tipo")
-                };
-                tabelaArrayLista.addRow(obj);
-            }
-        } catch (SQLException ex) {
-            System.out.println("Erro ao executar a query " + ex.getMessage());
-        }
-    }
-
-
 
     public static String[] getAlunoDataByID(int id){
         String query = "SELECT * FROM aluno WHERE id = ?";
@@ -158,25 +126,6 @@ public static List<Calendario> listarEventos() {
         }
         return null;
     }
-        public static Aluno getAlunoByName(String name) {
-            String query = "SELECT a.id, u.nome, a.turma_id FROM aluno a INNER JOIN user u ON a.id = u.id WHERE u.nome = ?";
-            try (PreparedStatement ps = conn.prepareStatement(query)) {
-                ps.setString(1, name);
-                ResultSet rs = ps.executeQuery();
-                if (rs.next()) {
-                    int id = rs.getInt("id");
-                    String nome = rs.getString("nome");
-                    int turmaId = rs.getInt("turma_id");
-                    return new Aluno(id, nome, turmaId);
-                }
-            } catch (SQLException ex) {
-                System.out.println("Erro ao executar a query " + ex.getMessage());
-            }
-            return null;
-        }
-
-
-
 
     public static ArrayList<Turma> listarTurmasSQL() {
         ArrayList<Turma> turmas = new ArrayList<>();
@@ -212,7 +161,6 @@ public static List<Calendario> listarEventos() {
         return disciplina;
     }
 
-
     public static ArrayList<Aluno> listarAlunosSQL(int turmaID) {
         ArrayList<Aluno> alunos = new ArrayList<>();
         String query = "SELECT * FROM aluno where turma_id = ?";
@@ -239,25 +187,6 @@ public static List<Calendario> listarEventos() {
             System.out.println("Erro ao executar a query ACHEIIII " + ex.getMessage());
         }
         return alunos;
-    }
-
-    public static void cadrastoUser(String nome, String email, String senha, String cpf,String endereco,String Telefone,String observacao, String tipo, String pai, String mae, String formacao) {
-        String query = "INSERT INTO user (nome, email, senha, cpf, endereco, telefone,observacao,tipo) VALUES (?, ?, ?, ?, ?, ?, ?,?)";
-        try (PreparedStatement ps = conn.prepareStatement(query)) {
-
-            ps.setString(1, nome);
-            ps.setString(2, email);
-            ps.setString(3, senha);
-            ps.setString(4, cpf);
-            ps.setString(5, endereco);
-            ps.setString(6, Telefone);
-            ps.setString(7, observacao);
-            ps.setString(8, tipo);
-            ps.executeUpdate();
-
-        } catch (SQLException ex) {
-            System.out.println("Erro ao executar a query " + ex.getMessage());
-        }
     }
 
     public static int  cadrastoUser(String nome, String email, String senha, String cpf,String endereco,String Telefone,String observacao, String tipo) {
@@ -342,51 +271,6 @@ public static List<Calendario> listarEventos() {
         return -1;
     }
 
-    public static String getTurmaNameByID(int id){
-        String query = "SELECT nome FROM turmas WHERE id = ?";
-        try (PreparedStatement ps = conn.prepareStatement(query)) {
-            ps.setInt(1, id);
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                return rs.getString("nome");
-            }
-        } catch (SQLException ex) {
-            System.out.println("Erro ao executar a query " + ex.getMessage());
-        }
-        return null;
-    }
-
-    public static String getTurmaNameByAlunoName(String alunoName){
-        String query = "SELECT turmas.nome FROM turmas INNER JOIN aluno ON turmas.id = aluno.turma_id INNER JOIN user ON aluno.id = user.id WHERE user.nome = ?";
-        try (PreparedStatement ps = conn.prepareStatement(query)) {
-            ps.setString(1, alunoName);
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                return rs.getString("nome");
-            }
-        } catch (SQLException ex) {
-            System.out.println("Erro ao executar a query " + ex.getMessage());
-        }
-        return null;
-    }
-
-
-    public static ArrayList<Turma> ArrayListasTurma(JTable tabelas) {
-        ArrayList<Turma> ArrayListakekw = listarTurmasSQL();
-        DefaultTableModel tabelaArrayLista = (DefaultTableModel) tabelas.getModel();
-        tabelas.setRowSorter(new TableRowSorter(tabelaArrayLista));
-        for(Turma turma : ArrayListakekw){
-            Object[] obj = new Object[]{
-                    turma.getNome(),
-                    turma.getAno(),
-                    turma.getId()
-            };
-            tabelaArrayLista.addRow(obj);
-        }
-        return ArrayListakekw;
-    }
-
-
     public static void listarUserByProfissao(JTable tabelas,String profissao) {
         String query = "SELECT * FROM user WHERE tipo = ?";
         try (PreparedStatement ps = conn.prepareStatement(query)) {
@@ -456,34 +340,7 @@ public static List<Calendario> listarEventos() {
         }
         return null;
     }
-
-    public static String[] getProfessorDataByID(int id){
-        String query = "SELECT * FROM professor WHERE id = ?";
-        try (PreparedStatement ps = conn.prepareStatement(query)) {
-            ps.setInt(1, id);
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                String disciplina = rs.getString("disciplina");
-                return new String[]{disciplina};
-            }
-        } catch (SQLException ex) {
-            System.out.println("Erro ao executar a query " + ex.getMessage());
-        }
-        return null;
-    }
-
-    public static void listarAlunosNaTabela(JTable tabelas) {
-        ArrayList<Aluno> ArrayListakekw = listarAlunosSQL(-1);
-        DefaultTableModel tabelaArrayLista = (DefaultTableModel) tabelas.getModel();
-        tabelas.setRowSorter(new TableRowSorter(tabelaArrayLista));
-        for(Aluno aluno : ArrayListakekw){
-            Object[] obj = new Object[]{
-                    aluno.getNome()
-            };
-            tabelaArrayLista.addRow(obj);
-        }
-    }
-
+    
     public static void chamadaSQL(int alunoID, Date data,int turmaID,String status) {
         String query = "INSERT INTO chamada (aluno_id,turma_id,data, status) VALUES (?, ?, ?, ?)";
         try (PreparedStatement ps = conn.prepareStatement(query)) {
@@ -547,37 +404,6 @@ public static List<Calendario> listarEventos() {
             System.out.println("Erro ao executar a query " + ex.getMessage());
         }
         return null;
-    }
-
-    public static void getStatusChamadaByAluno(String alunoName, Date data) {
-        String query = "SELECT status FROM chamada WHERE aluno_id = (SELECT id FROM user WHERE nome = ?) AND data = ?";
-        try (PreparedStatement ps = conn.prepareStatement(query)) {
-            ps.setString(1, alunoName);
-            ps.setDate(2, data);
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                System.out.println("Status: " + rs.getString("status"));
-            }
-        } catch (SQLException ex) {
-            System.out.println("Erro ao executar a query " + ex.getMessage());
-        }
-    }
-
-    public static ArrayList<Aluno> listarAlunosNaTabela(JTable tabelas, String turma) {
-        if(turma == null){
-            System.out.println("Turma não encontrada");
-            return null;
-        }
-        ArrayList<Aluno> ArrayListakekw = listarAlunosSQL(getTurmaIDByName(turma));
-        DefaultTableModel tabelaArrayLista = (DefaultTableModel) tabelas.getModel();
-        tabelas.setRowSorter(new TableRowSorter(tabelaArrayLista));
-        for(Aluno aluno : ArrayListakekw){
-            Object[] obj = new Object[]{
-                    aluno.getNome(),
-            };
-            tabelaArrayLista.addRow(obj);
-        }
-        return ArrayListakekw;
     }
 
     public static String login(String login, String senha) {
@@ -706,7 +532,7 @@ public static List<Calendario> listarEventos() {
         }
     }
 
-    public List<Observacao> listarObservacao(Aluno aluno) {
+    public static List<Observacao> listarObservacao(Aluno aluno) {
         List<Observacao> observacoes = new ArrayList<>();
         String query = "SELECT * FROM observacao WHERE aluno_id = ?";
         try (PreparedStatement ps = conn.prepareStatement(query)) {
@@ -723,26 +549,6 @@ public static List<Calendario> listarEventos() {
             System.out.println("Erro ao listar observações " + ex.getMessage());
         }
         return observacoes;
-    }
-
-
-    public static void listarObservacaoNaTabela(JTable jTable1, Aluno aluno) {
-        String query = "SELECT * FROM observacao WHERE aluno_id = ?";
-        try (PreparedStatement ps = conn.prepareStatement(query)) {
-            ps.setInt(1, aluno.getId());
-            ResultSet rs = ps.executeQuery();
-            DefaultTableModel tabelaArrayLista = (DefaultTableModel) jTable1.getModel();
-            jTable1.setRowSorter(new TableRowSorter(tabelaArrayLista));
-            while (rs.next()) {
-                Object[] obj = new Object[]{
-                        rs.getString("id"),
-                        rs.getString("data"),
-                };
-                tabelaArrayLista.addRow(obj);
-            }
-        } catch (SQLException ex) {
-            System.out.println("Erro ao listar observações " + ex.getMessage());
-        }
     }
 
     public static void editarObservacao(Observacao obs) {
@@ -764,20 +570,6 @@ public static List<Calendario> listarEventos() {
         } catch (SQLException ex) {
             System.out.println("Erro ao deletar observação " + ex.getMessage());
         }
-    }
-
-    public static String getObservacaoByID(int id) {
-        String query = "SELECT * FROM observacao WHERE id = ?";
-        try (PreparedStatement ps = conn.prepareStatement(query)) {
-            ps.setInt(1, id);
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                return rs.getString("conteudo");
-            }
-        } catch (SQLException ex) {
-            System.out.println("Erro ao executar a query " + ex.getMessage());
-        }
-        return null;
     }
 
     public static List<Notas> listarNotas(Aluno aluno) {
@@ -802,20 +594,6 @@ public static List<Calendario> listarEventos() {
         return notas;
     }
 
-    public static String getNotaDescricaoByID(int id) {
-        String query = "SELECT * FROM nota WHERE id = ?";
-        try (PreparedStatement ps = conn.prepareStatement(query)) {
-            ps.setInt(1, id);
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                return rs.getString("descricao");
-            }
-        } catch (SQLException ex) {
-            System.out.println("Erro ao executar a query " + ex.getMessage());
-        }
-        return null;
-    }
-
     public static List<Chamada> listarChamadaSQL(int id) {
         List<Chamada> chamadas = new ArrayList<>();
         String query = "SELECT * FROM chamada WHERE turma_id = ?";
@@ -826,29 +604,13 @@ public static List<Calendario> listarEventos() {
                 int alunoID = rs.getInt("aluno_id");
                 Date data = rs.getDate("data");
                 String status = rs.getString("status");
-                Chamada chamada = new Chamada(Objects.requireNonNull(Aluno.getALunoByID(alunoID)), data, Objects.requireNonNull(Turma.getTurmaByID(id)), status);
+                Chamada chamada = new Chamada(Objects.requireNonNull(Aluno.getALunoByID(alunoID)), data, Objects.requireNonNull(getTurma(id)), status);
                 chamadas.add(chamada);
             }
         } catch (SQLException ex) {
             System.out.println("Erro ao executar a query listarChamadaSQL" + ex.getMessage());
         }
         return chamadas;
-    }
-
-    public static Turma getTurmaByID(int turmaID) {
-        String query = "SELECT * FROM turmas WHERE id = ?";
-        try (PreparedStatement ps = conn.prepareStatement(query)) {
-            ps.setInt(1, turmaID);
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                String nome = rs.getString("nome");
-                int ano = rs.getInt("ano");
-                return new Turma(turmaID, nome, ano);
-            }
-        } catch (SQLException ex) {
-            System.out.println("Erro ao executar a query DNV AQUI getTurmaByID  " + ex.getMessage());
-        }
-        return null;
     }
 
     public static void atualizarEvento(Calendario calendario) {
@@ -905,5 +667,20 @@ public static List<Calendario> listarEventos() {
         } catch (SQLException ex) {
             System.out.println("Erro ao deletar o evento " + ex.getMessage());
         }
+    }
+
+    public static String getProfessor(int userID) {
+        String query = "SELECT * FROM professor WHERE id = ?";
+        try (PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setInt(1, userID);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                String disciplina = rs.getString("disciplina");
+                return disciplina;
+            }
+        } catch (SQLException ex) {
+            System.out.println("Erro ao executar a query " + ex.getMessage());
+        }
+        return null;
     }
 }

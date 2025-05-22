@@ -52,6 +52,7 @@ public class Relatorio {
 	}
 
 	public static Relatorio buscarRelatorio(Aluno aluno) {
+		if(aluno == null) return null;
 		return DBUtil.getRelatorioByAlunoID(aluno.getId());
 	}
 

@@ -28,7 +28,7 @@ public class Turma {
 	}
 
 	public static Turma getTurmaByID(int turmaID) {
-		Turma turma = DBUtil.getTurmaByID(turmaID);
+		Turma turma = DBUtil.getTurma(turmaID);
 		if (turma != null) {
 			return turma;
 		} else {
