@@ -19,9 +19,35 @@ public class TelaInicial extends javax.swing.JFrame {
     private String tipoPerm;
     public TelaInicial(String tipoPerm) {
         initComponents();
-        DBUtil.conexaoGeral();
-        this.tipoPerm = tipoPerm;
+        Util.userPermission = tipoPerm;
         System.out.println(tipoPerm);
+
+        switch (tipoPerm.toLowerCase()) {
+            case "diretor":
+                break;
+            case "supervisor":
+                jButton1.setEnabled(false); // Turmas
+                jButton4.setEnabled(false); // Cadastro
+                break;
+            case "professor":
+                jButton2.setEnabled(false); // Usuários
+                jButton3.setEnabled(true); // Gerar Relatorio
+                jButton4.setEnabled(false); // Cadastro
+                break;
+            case "aluno":
+                jButton1.setEnabled(false); // Turmas
+                jButton2.setEnabled(false); // Usuários
+                jButton3.setEnabled(false); // Gerar Relatorio
+                jButton4.setEnabled(false); // Cadastro
+                break;
+            default:
+                jButton1.setEnabled(false);
+                jButton2.setEnabled(false);
+                jButton3.setEnabled(false);
+                jButton4.setEnabled(false);
+                jButton5.setEnabled(false);
+        }
+
     }
 
     /**
@@ -170,7 +196,7 @@ public class TelaInicial extends javax.swing.JFrame {
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         // TODO add your handling code here:
         //
-        Util.tela(new TelaTurmas(),this);
+        Util.tela(new TelaTurmas(Util.userPermission),this);
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed

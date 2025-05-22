@@ -35,7 +35,35 @@ public class TelasEventos extends javax.swing.JFrame {
             model.addRow(new Object[]{c.getEvento(), sdf.format(c.getData())});
             eventos.add(c);
         }
+        configurarPermissoes();
 
+    }
+
+    private void configurarPermissoes() {
+        switch (Util.userPermission.toLowerCase()) {
+            case "diretor":
+                // All buttons enabled
+                break;
+            case "supervisor":
+                jButton14.setEnabled(true); // Edit
+                jButton15.setEnabled(true); // Add
+                jButton16.setEnabled(true); // Delete
+                break;
+            case "professor":
+                jButton14.setEnabled(true); // Edit
+                jButton15.setEnabled(true); // Add
+                jButton16.setEnabled(false); // Delete
+                break;
+            case "aluno":
+                jButton14.setEnabled(false); // Edit
+                jButton15.setEnabled(false); // Add
+                jButton16.setEnabled(false); // Delete
+                break;
+            default:
+                jButton14.setEnabled(false);
+                jButton15.setEnabled(false);
+                jButton16.setEnabled(false);
+        }
     }
 
     /**

@@ -29,9 +29,12 @@ public class TelaTurmas extends javax.swing.JFrame {
     private Turma turmaSelecionada;
     private Aluno alunoSelecionado;
     private Chamada chamada;
-    public TelaTurmas() {
+    String tipoPerm;
+    public TelaTurmas(String tipoPerm) {
+        this.tipoPerm = tipoPerm;
         initComponents();
         configurarSelecaoTurma();
+        configurarPermissoes();
 
     }
     private void configurarSelecaoTurma() {
@@ -54,6 +57,30 @@ public class TelaTurmas extends javax.swing.JFrame {
                 }
             }
         });
+    }
+
+    private void configurarPermissoes() {
+        switch (tipoPerm.toLowerCase()) {
+            case "diretor":
+                break;
+            case "supervisor":
+                jButton3.setEnabled(false); // Aplicar Notas
+                jButton4.setEnabled(false); // Status Presença
+                break;
+            case "professor":
+                break;
+            case "aluno":
+                jButton3.setEnabled(false); // Aplicar Notas
+                jButton4.setEnabled(false); // Status Presença
+                jButton5.setEnabled(false); // Observações
+                jButton7.setEnabled(true); // Histórico
+                break;
+            default:
+                jButton3.setEnabled(false);
+                jButton4.setEnabled(false);
+                jButton5.setEnabled(false);
+                jButton7.setEnabled(false);
+        }
     }
 
     private void atualizarTabelaAlunos() {
@@ -340,7 +367,7 @@ public class TelaTurmas extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new TelaTurmas().setVisible(true);
+                new TelaTurmas("").setVisible(true);
             }
         });
     }

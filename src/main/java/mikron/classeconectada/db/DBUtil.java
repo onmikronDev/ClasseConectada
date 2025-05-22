@@ -408,22 +408,30 @@ public static List<Calendario> listarEventos() {
 
     public static String login(String login, String senha) {
         String query = "SELECT * FROM user WHERE email = ? AND senha = ?";
+
+        System.out.println();
+
+        // Check if the connection is established
+        if (conn == null) {
+            System.out.println("Connection is not established.");
+            return null;
+        }
+
         try (PreparedStatement ps = conn.prepareStatement(query)) {
+            System.out.println("Login: " + login + " Senha: " + senha);
             ps.setString(1, login);
             ps.setString(2, senha);
-            ResultSet x = ps.executeQuery();
-            if (x.next()) {
-                System.out.println("Login realizado com sucesso");
-                System.out.println(x.getString("tipo"));
-                return x.getString("tipo");
-            } else {
-                System.out.println("Login falhou: usuário ou senha inválidos");
-                return null;
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getString("tipo");
             }
         } catch (SQLException ex) {
             System.out.println("Erro ao executar a query " + ex.getMessage());
-            return null;
         }
+
+        // Log when returning null
+        System.out.println("No user found or an error occurred during login.");
+        return null;
     }
 
     public static void aplicarNota(int idAluno, String materia, String nota, String descricao) {

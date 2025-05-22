@@ -48,6 +48,7 @@ public class TelaHistorico extends javax.swing.JFrame {
             }
         };
 
+        configurarPermissoes();
         jTable1.setModel(modeljTable1);
 
         // Listar notas
@@ -77,6 +78,22 @@ public class TelaHistorico extends javax.swing.JFrame {
             modeljTable.addRow(new Object[]{disciplina});
         }
 
+    }
+    private void configurarPermissoes() {
+        switch (Util.userPermission.toLowerCase()) {
+            case "diretor":
+            case "professor":
+                break;
+            case "supervisor":
+            case "aluno":
+                jButton8.setEnabled(false);  // Editar
+                jButton12.setEnabled(false); // Deletar
+                jButton9.setEnabled(false);  // Observações
+                break;
+            default:
+                jButton8.setEnabled(false);
+                jButton12.setEnabled(false);
+        }
     }
 
     /**
@@ -280,7 +297,7 @@ public class TelaHistorico extends javax.swing.JFrame {
     private void jButton10ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton10ActionPerformed
         // TODO add your handling code here:
         // voltar
-        Util.tela(new TelaTurmas(), this);
+        Util.tela(new TelaTurmas(Util.userPermission), this);
     }//GEN-LAST:event_jButton10ActionPerformed
 
     private void jButton11ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton11ActionPerformed
